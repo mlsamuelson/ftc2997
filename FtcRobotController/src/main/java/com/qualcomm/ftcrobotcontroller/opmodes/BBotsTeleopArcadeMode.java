@@ -68,7 +68,9 @@ public class BBotsTeleopArcadeMode extends OpMode {
         if(gamepad1.dpad_left){
             hopperServo.setPosition(1);
         }else if(gamepad1.dpad_right){
-            hopperServo.setPosition(0);
+            hopperServo.setPosition(.54);
+        }else if(gamepad1.dpad_up){
+            hopperServo.setPosition(.75);
         }
 
     }
