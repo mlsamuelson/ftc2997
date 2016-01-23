@@ -1,11 +1,8 @@
-//Robot needs to drive (2 motors) and motor on arm needs to spin
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.Servo;
-
 
 
 public class Yoga_Bot extends OpMode {
@@ -15,19 +12,30 @@ public class Yoga_Bot extends OpMode {
     DcMotor LeftB;
     DcMotor RightB;
     DcMotor Sweeper;
-    DcMotor Lift;
-    Servo   Basket;
+    DcMotor Winch;
+    DcMotor Rack;
+    Servo   ClimberLeft;
+    Servo   ClimberRight;
+
+    final double ClimberLeftDown = 0.3;
+    final double ClimberLeftUp   = 0.5;
+    final double ClimberRightDown = 0.5;
+    final double ClimberRightUp   = 0.3;
+
+
 
     @Override
     public void init() {
         //get references to the motors from the hardware map
-        Basket = hardwareMap.servo.get("Basket");
+        Rack = hardwareMap.dcMotor.get("Rack");
         LeftA = hardwareMap.dcMotor.get("LeftA");
         RightA = hardwareMap.dcMotor.get("RightA");
         LeftB = hardwareMap.dcMotor.get("LeftB");
         RightB = hardwareMap.dcMotor.get("RightB");
-        Lift = hardwareMap.dcMotor.get("Lift");
+        Winch = hardwareMap.dcMotor.get("Winch");
         Sweeper = hardwareMap.dcMotor.get("Sweeper");
+        ClimberLeft = hardwareMap.servo.get("ClimberLeft");
+        ClimberRight = hardwareMap.servo.get("ClimberRight");
          //reverse the right motor
         RightA.setDirection(DcMotor.Direction.REVERSE);
         RightB.setDirection(DcMotor.Direction.REVERSE);
@@ -56,19 +64,29 @@ public class Yoga_Bot extends OpMode {
         }
 
         if(gamepad1.a){
-            Lift.setPower(.5);
+            Winch.setPower(.5);
         }else if(gamepad1.y){
-            Lift.setPower(-.5);
+            Winch.setPower(-.5);
         }else{
-            Lift.setPower(0);
+            Winch.setPower(0);
         }
 
         if(gamepad1.dpad_right){
-            Basket.setPosition(1);
+            Rack.setPower(.5);
         }else if(gamepad1.dpad_left){
-            Basket.setPosition(-1);
+            Rack.setPower(-0.5);
         }else if(gamepad1.dpad_down){
-            Basket.setPosition(0);
+            Rack.setPower(0);
+        }
+        if(gamepad1.left_bumper) {
+            ClimberLeft.setPosition(ClimberLeftDown);
+        }else if(gamepad1.left_trigger > 0 ){
+            ClimberLeft.setPosition(ClimberLeftUp);
+        }
+        if(gamepad1.right_bumper) {
+            ClimberRight.setPosition(ClimberRightUp);
+        }else if(gamepad1.right_trigger > 0) {
+            ClimberRight.setPosition(ClimberRightDown);
         }
 
     }

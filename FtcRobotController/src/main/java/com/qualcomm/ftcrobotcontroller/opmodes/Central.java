@@ -23,7 +23,7 @@ public class Central extends OpMode {
         RightA = hardwareMap.dcMotor.get("RightA");
         LeftB = hardwareMap.dcMotor.get("LeftB");
         RightB = hardwareMap.dcMotor.get("RightB");
-        Lift = hardwareMap.dcMotor.get("Lift");
+        Lift = hardwareMap.dcMotor.get("Winch");
         Dump = hardwareMap.dcMotor.get("Dump");
         Sweep = hardwareMap.dcMotor.get("Dump");
         //reverse the right motor
