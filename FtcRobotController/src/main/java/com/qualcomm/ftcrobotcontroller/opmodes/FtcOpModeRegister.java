@@ -64,8 +64,8 @@ public class FtcOpModeRegister implements OpModeRegister {
     manager.register ("BBotsTeleOpTankMode", BBotsTeleopTankMode.class);
     manager.register ("BBotsBlueAutonomous", BBotsBlueAutonomous.class);
     manager.register ("BBotsRedAutonomous", BBotsRedAutonomous.class);
-    manager.register ("CraftBazaar", CraftBazaar.class);
-
+    manager.register ("Central", Central.class);
+    manager.register ("Yoga_Bot", Yoga_Bot.class);
 
     /*
      * Uncomment any of the following lines if you want to register an op mode.
