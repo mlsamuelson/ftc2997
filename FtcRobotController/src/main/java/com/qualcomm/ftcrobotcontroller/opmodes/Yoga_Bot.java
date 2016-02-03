@@ -49,11 +49,19 @@ public class Yoga_Bot extends OpMode {
         float leftY = -gamepad1.left_stick_y;
         float rightY = -gamepad1.right_stick_y;
 
+        float leftY2 = -gamepad2.left_stick_y/2;
+        float rightY2 = -gamepad2.right_stick_y/2;
+
         //set the power of the motors with the gamepad values
         LeftA.setPower(leftY);
         LeftB.setPower(leftY);
         RightA.setPower(rightY);
         RightB.setPower(rightY);
+
+        LeftA.setPower(leftY2);
+        LeftB.setPower(leftY2);
+        RightA.setPower(rightY2);
+        RightB.setPower(rightY2);
 
         if(gamepad1.x){
             Sweeper.setPower(1);
@@ -63,19 +71,19 @@ public class Yoga_Bot extends OpMode {
             Sweeper.setPower(0);
         }
 
-        if(gamepad1.a){
+        if(gamepad2.a){
             Winch.setPower(.5);
-        }else if(gamepad1.y){
+        }else if(gamepad2.y){
             Winch.setPower(-.5);
         }else{
             Winch.setPower(0);
         }
 
-        if(gamepad1.dpad_right){
+        if(gamepad2.x){
             Rack.setPower(.5);
-        }else if(gamepad1.dpad_left){
+        }else if(gamepad2.b){
             Rack.setPower(-0.5);
-        }else if(gamepad1.dpad_down){
+        }else{
             Rack.setPower(0);
         }
         if(gamepad1.left_bumper) {
