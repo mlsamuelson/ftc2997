@@ -58,7 +58,8 @@ public class LinearI2cAddressChangeBBB extends LinearOpMode {
   // Expected bytes from the Modern Robotics Color Sensor memory map
   public static final byte COLOR_SENSOR_FIRMWARE_REV = 0x10;
   public static final byte COLOR_SENSOR_SENSOR_ID = 0x43;
-  public static final byte COLOR_SENSOR_ORIGINAL_ADDRESS = 0x3C;
+  //public static final byte COLOR_SENSOR_ORIGINAL_ADDRESS = 0x3C;
+  public static final byte COLOR_SENSOR_ORIGINAL_ADDRESS = 0x1E;
 
   public static final byte MANUFACTURER_CODE = 0x4d;
   // Currently, this is set to expect the bytes from the IR Seeker.
@@ -97,7 +98,7 @@ public class LinearI2cAddressChangeBBB extends LinearOpMode {
   public void runOpMode() throws InterruptedException {
 
     // set up the hardware devices we are going to use
-    dim = hardwareMap.deviceInterfaceModule.get("dim");
+    dim = hardwareMap.deviceInterfaceModule.get("Device Interface Module 1");
 
     readCache = dim.getI2cReadCache(port);
     readLock = dim.getI2cReadCacheLock(port);

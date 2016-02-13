@@ -12,30 +12,32 @@ public class Yoga_Bot extends OpMode {
     DcMotor LeftB;
     DcMotor RightB;
     DcMotor Sweeper;
+    DcMotor Sweeper2;
     DcMotor Winch;
     DcMotor Rack;
     Servo   ClimberLeft;
     Servo   ClimberRight;
+    Servo   ClimberDump;
 
     final double ClimberLeftDown = 0.3;
     final double ClimberLeftUp   = 0.5;
     final double ClimberRightDown = 0.5;
     final double ClimberRightUp   = 0.3;
 
-
-
     @Override
     public void init() {
         //get references to the motors from the hardware map
-        Rack = hardwareMap.dcMotor.get("Rack");
         LeftA = hardwareMap.dcMotor.get("LeftA");
         RightA = hardwareMap.dcMotor.get("RightA");
         LeftB = hardwareMap.dcMotor.get("LeftB");
         RightB = hardwareMap.dcMotor.get("RightB");
         Winch = hardwareMap.dcMotor.get("Winch");
         Sweeper = hardwareMap.dcMotor.get("Sweeper");
+        Sweeper2 = hardwareMap.dcMotor.get("Sweeper2");
+        Rack = hardwareMap.dcMotor.get("Rack");
         ClimberLeft = hardwareMap.servo.get("ClimberLeft");
         ClimberRight = hardwareMap.servo.get("ClimberRight");
+        ClimberDump = hardwareMap.servo.get("ClimberDump");
          //reverse the right motor
         RightA.setDirection(DcMotor.Direction.REVERSE);
         RightB.setDirection(DcMotor.Direction.REVERSE);
@@ -49,31 +51,29 @@ public class Yoga_Bot extends OpMode {
         float leftY = -gamepad1.left_stick_y;
         float rightY = -gamepad1.right_stick_y;
 
-        float leftY2 = -gamepad2.left_stick_y/2;
-        float rightY2 = -gamepad2.right_stick_y/2;
+        float leftY2 = -gamepad1.left_stick_y/2;
+        float rightY2 = -gamepad1.right_stick_y/2;
 
         //set the power of the motors with the gamepad values
-        LeftA.setPower(leftY);
+        LeftA.setPower(leftY2);
         LeftB.setPower(leftY);
-        RightA.setPower(rightY);
+        RightA.setPower(rightY2);
         RightB.setPower(rightY);
 
-        LeftA.setPower(leftY2);
-        LeftB.setPower(leftY2);
-        RightA.setPower(rightY2);
-        RightB.setPower(rightY2);
-
-        if(gamepad1.x){
+        if(gamepad1.left_bumper){
             Sweeper.setPower(1);
-        }else if(gamepad1.b){
+            Sweeper2.setPower(1);
+        }else if(gamepad1.right_bumper){
             Sweeper.setPower(-1);
-        }else{
+            Sweeper2.setPower(-1);
+        }else {
             Sweeper.setPower(0);
+            Sweeper2.setPower(0);
         }
 
-        if(gamepad2.a){
+        if(gamepad2.y){
             Winch.setPower(.5);
-        }else if(gamepad2.y){
+        }else if(gamepad2.a){
             Winch.setPower(-.5);
         }else{
             Winch.setPower(0);
@@ -86,14 +86,14 @@ public class Yoga_Bot extends OpMode {
         }else{
             Rack.setPower(0);
         }
-        if(gamepad1.left_bumper) {
+        if(gamepad2.left_bumper) {
             ClimberLeft.setPosition(ClimberLeftDown);
-        }else if(gamepad1.left_trigger > 0 ){
+        }else if(gamepad2.left_trigger > 0 ){
             ClimberLeft.setPosition(ClimberLeftUp);
         }
-        if(gamepad1.right_bumper) {
+        if(gamepad2.right_bumper) {
             ClimberRight.setPosition(ClimberRightUp);
-        }else if(gamepad1.right_trigger > 0) {
+        }else if(gamepad2.right_trigger > 0) {
             ClimberRight.setPosition(ClimberRightDown);
         }
 
