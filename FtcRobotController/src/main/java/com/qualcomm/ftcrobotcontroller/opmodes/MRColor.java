@@ -72,7 +72,6 @@ public class MRColor extends LinearOpMode {
     // A core device discovery program was used to change this.
     sensorRGBR.setI2cAddress(0x70);
 
-
     // bEnabled represents the state of the LED.
     boolean bEnabled = true;
 
@@ -87,10 +86,12 @@ public class MRColor extends LinearOpMode {
     waitForStart();
 
     // hsvValues is an array that will hold the hue, saturation, and value information.
-    float hsvValues[] = {0F,0F,0F};
+    float hsvRValues[] = {0F,0F,0F};
+    float hsvLValues[] = {0F,0F,0F};
 
     // values is a reference to the hsvValues array.
-    final float values[] = hsvValues;
+    final float valuesR[] = hsvRValues;
+    final float valuesL[] = hsvLValues;
 
     // get a reference to the RelativeLayout so we can change the background
     // color of the Robot Controller app to match the hue detected by the RGB sensor.
@@ -142,8 +143,8 @@ public class MRColor extends LinearOpMode {
 
       // convert the RGB values to HSV values.
       //Color.RGBToHSV((sensorRGB.red() * 8), (sensorRGB.green() * 8), (sensorRGB.blue() * 8), hsvValues);
-      Color.RGBToHSV(sensorRGBL.red() * 8, sensorRGBL.green() * 8, sensorRGBL.blue() * 8, hsvValues);
-      Color.RGBToHSV(sensorRGBR.red() * 8, sensorRGBR.green() * 8, sensorRGBR.blue() * 8, hsvValues);
+      Color.RGBToHSV(sensorRGBL.red() * 8, sensorRGBL.green() * 8, sensorRGBL.blue() * 8, hsvLValues);
+      Color.RGBToHSV(sensorRGBR.red() * 8, sensorRGBR.green() * 8, sensorRGBR.blue() * 8, hsvRValues);
 
       // send the info back to driver station using telemetry function.
       telemetry.addData("LEFT", "");
@@ -151,21 +152,21 @@ public class MRColor extends LinearOpMode {
       telemetry.addData("Red  ", sensorRGBL.red());
       telemetry.addData("Green", sensorRGBL.green());
       telemetry.addData("Blue ", sensorRGBL.blue());
-      telemetry.addData("Hue", hsvValues[0]);
+      telemetry.addData("Hue", hsvLValues[0]);
 
       telemetry.addData("RIGHT", "");
       telemetry.addData("Clear", sensorRGBR.alpha());
       telemetry.addData("Red  ", sensorRGBR.red());
       telemetry.addData("Green", sensorRGBR.green());
       telemetry.addData("Blue ", sensorRGBR.blue());
-      telemetry.addData("Hue", hsvValues[0]);
+      telemetry.addData("Hue", hsvRValues[0]);
 
       // change the background color to match the color detected by the RGB sensor.
       // pass a reference to the hue, saturation, and value array as an argument
       // to the HSVToColor method.
       relativeLayout.post(new Runnable() {
         public void run() {
-          relativeLayout.setBackgroundColor(Color.HSVToColor(0xff, values));
+          relativeLayout.setBackgroundColor(Color.HSVToColor(0xff, valuesL));
         }
       });
 

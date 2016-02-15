@@ -21,8 +21,12 @@ public class Yoga_Bot extends OpMode {
 
     final double ClimberLeftDown = 0.3;
     final double ClimberLeftUp   = 0.5;
+    final double ClimberLeftStart = 1.0;
     final double ClimberRightDown = 0.5;
     final double ClimberRightUp   = 0.3;
+    final double ClimberRightStart = 1.0;
+    final double ClimberDumpUp = 1.0;
+    final double ClimberDumpDown = 0.0;
 
     @Override
     public void init() {
@@ -41,6 +45,7 @@ public class Yoga_Bot extends OpMode {
          //reverse the right motor
         RightA.setDirection(DcMotor.Direction.REVERSE);
         RightB.setDirection(DcMotor.Direction.REVERSE);
+        ClimberDump.setPosition(ClimberDumpDown);
     }
 
     @Override
@@ -60,13 +65,13 @@ public class Yoga_Bot extends OpMode {
         RightA.setPower(rightY2);
         RightB.setPower(rightY);
 
-        if(gamepad1.left_bumper){
+        if(gamepad1.b){
             Sweeper.setPower(1);
             Sweeper2.setPower(1);
-        }else if(gamepad1.right_bumper){
+        }else if(gamepad1.x){
             Sweeper.setPower(-1);
             Sweeper2.setPower(-1);
-        }else {
+        }else if(gamepad1.a){
             Sweeper.setPower(0);
             Sweeper2.setPower(0);
         }
@@ -79,22 +84,33 @@ public class Yoga_Bot extends OpMode {
             Winch.setPower(0);
         }
 
-        if(gamepad2.x){
+        if (gamepad2.x){
             Rack.setPower(.5);
-        }else if(gamepad2.b){
+        }else if (gamepad2.b){
             Rack.setPower(-0.5);
         }else{
             Rack.setPower(0);
         }
-        if(gamepad2.left_bumper) {
+        if(gamepad1.dpad_left) {
             ClimberLeft.setPosition(ClimberLeftDown);
-        }else if(gamepad2.left_trigger > 0 ){
+        }else if(gamepad1.dpad_down){
             ClimberLeft.setPosition(ClimberLeftUp);
+        }else if(gamepad1.dpad_up){
+            ClimberLeft.setPosition(ClimberLeftStart);
         }
-        if(gamepad2.right_bumper) {
-            ClimberRight.setPosition(ClimberRightUp);
-        }else if(gamepad2.right_trigger > 0) {
+
+        if(gamepad2.dpad_right){
             ClimberRight.setPosition(ClimberRightDown);
+        }else if(gamepad2.dpad_down) {
+            ClimberRight.setPosition(ClimberRightUp);
+        }else if(gamepad2.dpad_up){
+            ClimberRight.setPosition(ClimberRightStart);
+        }
+
+        if(gamepad1.left_trigger > 0){
+            ClimberDump.setPosition(ClimberDumpUp);
+        }else if(gamepad1.right_trigger > 0){
+            ClimberDump.setPosition(ClimberDumpDown);
         }
 
     }

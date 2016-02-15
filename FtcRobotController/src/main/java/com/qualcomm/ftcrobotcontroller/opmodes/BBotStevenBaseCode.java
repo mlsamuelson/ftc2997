@@ -1,11 +1,8 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.ftcrobotcontroller.R;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+//import com.qualcomm.ftcrobotcontroller.R;
 import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
-import com.qualcomm.robotcore.hardware.LED;
 
 
 /**
@@ -18,87 +15,119 @@ public class BBotStevenBaseCode extends OpMode {
     // Declare variables
     DcMotor lMotor;
     DcMotor rMotor;
+    DcMotor lMotor2;
+    DcMotor rMotor2;
 
     int turnWay1;
     int turnWay2;
-    int mid_color_grey;
-    int mid_color_white;
+    int MAX_COLOR;
     int color_value_LEFT;
     int color_value_RIGHT;
 
-    enum State {forewords, lineFollow, end}
+    enum State {FOREWARDS, LINE_FOLLOW, END}
     State state;
+
+    ColorSensor sensorRGBL;
+    ColorSensor sensorRGBR;
 
     public void init(){
         // Set variable value
-        lMotor = hardwareMap.dcMotor.get("leftMotor");
-        rMotor = hardwareMap.dcMotor.get("rightMotor");
-        rMotor.setDirection(DcMotor.Direction.REVERSE);
+        lMotor = hardwareMap.dcMotor.get("LeftA");
+        rMotor = hardwareMap.dcMotor.get("RightA");
+        lMotor2 = hardwareMap.dcMotor.get("LeftB");
+        rMotor2 = hardwareMap.dcMotor.get("RightB");
 
-        state = State.forewords;
+        // Reverse the LEFT motors because the robot is running backwards
+        lMotor.setDirection(DcMotor.Direction.REVERSE);
+        lMotor2.setDirection(DcMotor.Direction.REVERSE);
+
+        state = State.FOREWARDS;
         // These will change. They are listed here so this program can run by itself.
-        turnWay1 = 0;
-        turnWay2 = 0;
+        turnWay1 = 1;
+        turnWay2 = 1/2;
+
+        // get a reference to our ColorSensor object.
+        sensorRGBL = hardwareMap.colorSensor.get("MRColor_left");
+        sensorRGBR = hardwareMap.colorSensor.get("MRColor_right");
+
+        // Change one color sensor to a new address
+        // A core device discovery program was used to change this.
+        sensorRGBR.setI2cAddress(0x70);
+
+        // Enable the LED lights on both sensors
+
 
         // These are the sensor values that mark the range of values
-        mid_color_grey = 1;     // Between grey and the team color
-        mid_color_white = 2;    // Between the team color and white
-        // This is assuming that white has the highest value and that grey has the lowest
+        MAX_COLOR = 6;
+
+        sensorRGBR.enableLed(false);
+        sensorRGBL.enableLed(false);
     }
+
     @Override
     public void loop() {
-        // Set two reflection variables
-
+        sensorRGBR.enableLed(true);
+        sensorRGBL.enableLed(true);
+        // Find the sum of the Red, Green, and Blue that the sensors are currently showing
+        color_value_LEFT = sensorRGBL.red()+sensorRGBL.blue();
+        color_value_RIGHT = sensorRGBR.red()+sensorRGBR.blue()-3;
         // They are defined outside of the state so they can be used everywhere
         // They are defined inside the loop so that they get defined over and over
-        // There is one on the right, (1), and one on the left (2).
+
         switch(state){
-            case forewords:
-                // If either reflection is not on the ground...
-                if (mid_color_grey < color_value_LEFT &&
-                    color_value_LEFT < mid_color_white ||
-                    mid_color_grey < color_value_RIGHT &&
-                    color_value_RIGHT < mid_color_white){
+            case FOREWARDS:
+                // If either sensor is on the line...
+                if (color_value_LEFT < MAX_COLOR ||
+                    color_value_RIGHT < MAX_COLOR){
                     // ...then change the state to lineFollow
-                    state = State.lineFollow;
+                    state = State.LINE_FOLLOW;
                 } else {
                     // Otherwise, move forwards
-                    lMotor.setPower(1);
-                    rMotor.setPower(1);
+                    /*lMotor.setPower(0.5);
+                    rMotor.setPower(0.5);
+                    lMotor2.setPower(0.5);
+                    rMotor2.setPower(0.5);*/
                 }
                 break;
-            case lineFollow:
-                if (mid_color_grey < color_value_LEFT &&
-                    color_value_LEFT < mid_color_white &&
-                    mid_color_grey < color_value_RIGHT &&
-                    color_value_RIGHT < mid_color_white){
+            case LINE_FOLLOW:
+                if (color_value_LEFT < MAX_COLOR &&
+                    color_value_RIGHT < MAX_COLOR){
                     // If BOTH sensors are on the line, then the program can continue.
-                    state = State.end;
+                    state = State.END;
 
-                    // Otherwise, if either reflection is on the line...
-                } else if (mid_color_grey < color_value_LEFT &&
-                           color_value_LEFT < mid_color_white ||
-                           mid_color_grey < color_value_RIGHT &&
-                           color_value_RIGHT < mid_color_white){
+                    // Otherwise, if either sensor is on the line...
+                } else if (color_value_LEFT < MAX_COLOR ||
+                           color_value_RIGHT < MAX_COLOR){
                     // ... then turn in the "first" direction.
-                    lMotor.setPower(turnWay1);
+                    /*lMotor.setPower(turnWay1);
                     rMotor.setPower(turnWay2);
+                    lMotor2.setPower(turnWay1);
+                    rMotor2.setPower(turnWay2);*/
+                    telemetry.addData("EITHER SENSOR IS ON LINE! Left", color_value_LEFT);
+                    telemetry.addData("Right", color_value_RIGHT);
 
-                    // Otherwise, if neither reflection is on the line/both are on the ground.
-                } else if (!(mid_color_grey < color_value_LEFT &&
-                            color_value_LEFT < mid_color_white &&
-                            mid_color_grey < color_value_RIGHT &&
-                            color_value_RIGHT < mid_color_white)){
+                    // Otherwise, if neither sensor are on the line/both are on the ground.
+                } else if (color_value_LEFT <= MAX_COLOR &&
+                           color_value_RIGHT <= MAX_COLOR){
                     // ... then turn in the "second" direction
-                    lMotor.setPower(turnWay2);
+                    telemetry.addData("NEITHER SENSOR ARE ON THE LINE! Left", color_value_LEFT);
+                    telemetry.addData("Right", color_value_RIGHT);
+                    /*lMotor.setPower(turnWay2);
                     rMotor.setPower(turnWay1);
+                    lMotor2.setPower(turnWay2);
+                    rMotor2.setPower(turnWay1);*/
                 }
                 break;
-            case end:
+            case END:
+                telemetry.addData("Left", color_value_LEFT);
+                telemetry.addData("Right", color_value_RIGHT);
                 lMotor.setPower(0);
                 rMotor.setPower(0);
+                lMotor2.setPower(0);
+                rMotor2.setPower(0);
                 break;
         }
+        telemetry.addData("state", state);
     }
 }
 // http://ftc.edu.intelitek.com/mod/scorm/player.php

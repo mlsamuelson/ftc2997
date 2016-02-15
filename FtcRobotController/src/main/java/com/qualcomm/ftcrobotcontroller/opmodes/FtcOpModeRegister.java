@@ -73,6 +73,7 @@ public class FtcOpModeRegister implements OpModeRegister {
 
     manager.register("BBotStevenBlueCode", BBotStevenBlueStartCode.class);
     manager.register("BBotStevenRedCode", BBotStevenRedStartCode.class);
+    manager.register("BBotStevenBaseCode", BBotStevenBaseCode.class);
     manager.register("ColorTest", MRColor.class);
     manager.register("ChangeColor", LinearI2cAddressChangeBBB.class);
     //manager.register("HTRGBExample", HTRGBExample.class);
