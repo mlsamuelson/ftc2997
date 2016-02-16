@@ -19,9 +19,9 @@ public class Yoga_Bot extends OpMode {
     Servo   ClimberRight;
     Servo   ClimberDump;
 
-    final double ClimberLeftDown = 0.3;
-    final double ClimberLeftUp   = 0.5;
-    final double ClimberLeftStart = 1.0;
+    final double ClimberLeftDown = 1.0;
+    final double ClimberLeftUp   = 0.7;
+    final double ClimberLeftStart = 0.1;
     final double ClimberRightDown = 0.5;
     final double ClimberRightUp   = 0.3;
     final double ClimberRightStart = 1.0;
@@ -91,15 +91,15 @@ public class Yoga_Bot extends OpMode {
         }else{
             Rack.setPower(0);
         }
-        if(gamepad1.dpad_left) {
-            ClimberLeft.setPosition(ClimberLeftDown);
-        }else if(gamepad1.dpad_down){
+        if(gamepad1.dpad_right) {
             ClimberLeft.setPosition(ClimberLeftUp);
+        }else if(gamepad1.dpad_down){
+            ClimberLeft.setPosition(ClimberLeftDown);
         }else if(gamepad1.dpad_up){
             ClimberLeft.setPosition(ClimberLeftStart);
         }
 
-        if(gamepad2.dpad_right){
+        if(gamepad2.dpad_left){
             ClimberRight.setPosition(ClimberRightDown);
         }else if(gamepad2.dpad_down) {
             ClimberRight.setPosition(ClimberRightUp);
