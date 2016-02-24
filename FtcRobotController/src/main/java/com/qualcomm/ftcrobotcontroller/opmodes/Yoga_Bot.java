@@ -20,13 +20,14 @@ public class Yoga_Bot extends OpMode {
     Servo   ClimberDump;
 
     final double ClimberLeftDown = 1.0;
-    final double ClimberLeftUp   = 0.7;
-    final double ClimberLeftStart = 0.1;
-    final double ClimberRightDown = 0.5;
-    final double ClimberRightUp   = 0.3;
-    final double ClimberRightStart = 1.0;
+    final double ClimberLeftUp   = 0.3;
+    final double ClimberLeftStart = ClimberLeftUp;
+    final double ClimberRightDown = 0.3;
+    final double ClimberRightUp   = 1.0;
+    final double ClimberRightStart = ClimberRightUp;
     final double ClimberDumpUp = 1.0;
     final double ClimberDumpDown = 0.0;
+
 
     @Override
     public void init() {
@@ -45,7 +46,9 @@ public class Yoga_Bot extends OpMode {
          //reverse the right motor
         RightA.setDirection(DcMotor.Direction.REVERSE);
         RightB.setDirection(DcMotor.Direction.REVERSE);
-        ClimberDump.setPosition(ClimberDumpDown);
+        ClimberDump.setPosition(ClimberDumpUp);
+        ClimberRight.setPosition(ClimberRightUp);
+        ClimberLeft.setPosition(ClimberLeftUp);
     }
 
     @Override
@@ -76,10 +79,14 @@ public class Yoga_Bot extends OpMode {
             Sweeper2.setPower(0);
         }
 
-        if(gamepad2.y){
+        if(gamepad2.a){
             Winch.setPower(.5);
-        }else if(gamepad2.a){
+            ClimberLeft.setPosition(ClimberLeftUp);
+            ClimberRight.setPosition(ClimberRightUp);
+        }else if (gamepad2.y || gamepad1.y){
             Winch.setPower(-.5);
+            ClimberLeft.setPosition(ClimberLeftDown);
+            ClimberRight.setPosition(ClimberRightDown);
         }else{
             Winch.setPower(0);
         }
@@ -107,9 +114,9 @@ public class Yoga_Bot extends OpMode {
             ClimberRight.setPosition(ClimberRightStart);
         }
 
-        if(gamepad1.left_trigger > 0){
+        if(gamepad1.left_bumper){
             ClimberDump.setPosition(ClimberDumpUp);
-        }else if(gamepad1.right_trigger > 0){
+        }else if(gamepad1.right_bumper){
             ClimberDump.setPosition(ClimberDumpDown);
         }
 

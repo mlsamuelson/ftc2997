@@ -9,22 +9,49 @@ import com.qualcomm.robotcore.util.Range;
 
 public class BBotsTeleopArcadeMode extends OpMode {
 
-    DcMotor leftMotor;
-    DcMotor rightMotor;
-    DcMotor liftMotor;
-    DcMotor brushMotor;
-    Servo hopperServo;
+    DcMotor LeftA;
+    DcMotor RightA;
+    DcMotor LeftB;
+    DcMotor RightB;
+    DcMotor Sweeper;
+    DcMotor Sweeper2;
+    DcMotor Winch;
+    DcMotor Rack;
+    Servo   ClimberLeft;
+    Servo   ClimberRight;
+    Servo   ClimberDump;
+
+    final double ClimberLeftDown = 1.0;
+    final double ClimberLeftUp   = 0.3;
+    final double ClimberLeftStart = ClimberLeftUp;
+    final double ClimberRightDown = 0.3;
+    final double ClimberRightUp   = 1.0;
+    final double ClimberRightStart = ClimberRightUp;
+    final double ClimberDumpUp = 1.0;
+    final double ClimberDumpDown = 0.0;
+
+
 
 
     @Override
     public void init() {
-        leftMotor = hardwareMap.dcMotor.get("leftMotor");
-        rightMotor = hardwareMap.dcMotor.get("rightMotor");
-        liftMotor = hardwareMap.dcMotor.get("liftMotor");
-        brushMotor = hardwareMap.dcMotor.get("brushMotor");
-        hopperServo = hardwareMap.servo.get("hopperServo");
-
-        rightMotor.setDirection(DcMotor.Direction.REVERSE);
+        LeftA = hardwareMap.dcMotor.get("LeftA");
+        RightA = hardwareMap.dcMotor.get("RightA");
+        LeftB = hardwareMap.dcMotor.get("LeftB");
+        RightB = hardwareMap.dcMotor.get("RightB");
+        Winch = hardwareMap.dcMotor.get("Winch");
+        Sweeper = hardwareMap.dcMotor.get("Sweeper");
+        Sweeper2 = hardwareMap.dcMotor.get("Sweeper2");
+        Rack = hardwareMap.dcMotor.get("Rack");
+        ClimberLeft = hardwareMap.servo.get("ClimberLeft");
+        ClimberRight = hardwareMap.servo.get("ClimberRight");
+        ClimberDump = hardwareMap.servo.get("ClimberDump");
+        //reverse the right motor
+        RightA.setDirection(DcMotor.Direction.REVERSE);
+        RightB.setDirection(DcMotor.Direction.REVERSE);
+        ClimberDump.setPosition(ClimberDumpUp);
+        ClimberRight.setPosition(ClimberRightUp);
+        ClimberLeft.setPosition(ClimberLeftUp);
     }
 
     @Override
@@ -40,37 +67,65 @@ public class BBotsTeleopArcadeMode extends OpMode {
         float rightPower = yValue - xValue;
 
         //clip the power values so that it only goes from -1 to 1
-        leftPower = Range.clip(leftPower, -1, 1);
-        rightPower = Range.clip(rightPower, -1, 1);
+        leftPower = Range.clip(leftPower, -1, 1)/2;
+        rightPower = Range.clip(rightPower, -1, 1)/2;
+
+        LeftA.setPower(leftPower);
+        LeftB.setPower(leftPower);
+        RightA.setPower(rightPower);
+        RightB.setPower(rightPower);
 
         //set the power of the motors with the gamepad values
-        leftMotor.setPower(leftPower);
-        rightMotor.setPower(rightPower);
-
-        if(gamepad1.y) {
-            liftMotor.setPower(1);
-        }
-                else if(gamepad1.b) {
-            liftMotor.setPower(-1);
-        }
-        else {
-            liftMotor.setPower(0);
+        if(gamepad1.b){
+            Sweeper.setPower(1);
+            Sweeper2.setPower(1);
+        }else if(gamepad1.x){
+            Sweeper.setPower(-1);
+            Sweeper2.setPower(-1);
+        }else if(gamepad1.a){
+            Sweeper.setPower(0);
+            Sweeper2.setPower(0);
         }
 
-        if(gamepad1.a){
-            brushMotor.setPower(1);
-        }else if(gamepad1.x) {
-            brushMotor.setPower(-1);
+        if(gamepad2.a){
+            Winch.setPower(.5);
+            ClimberLeft.setPosition(ClimberLeftUp);
+            ClimberRight.setPosition(ClimberRightUp);
+        }else if(gamepad2.y || gamepad1.y){
+            Winch.setPower(-.5);
+            ClimberLeft.setPosition(ClimberLeftDown);
+            ClimberRight.setPosition(ClimberRightDown);
         }else{
-            brushMotor.setPower(0);
+            Winch.setPower(0);
         }
 
-        if(gamepad1.dpad_left){
-            hopperServo.setPosition(1);
-        }else if(gamepad1.dpad_right){
-            hopperServo.setPosition(.54);
+        if (gamepad2.x){
+            Rack.setPower(.5);
+        }else if (gamepad2.b){
+            Rack.setPower(-0.5);
+        } else {
+            Rack.setPower(0);
+        }
+        if(gamepad1.dpad_right) {
+            ClimberLeft.setPosition(ClimberLeftUp);
+        }else if(gamepad1.dpad_down){
+            ClimberLeft.setPosition(ClimberLeftDown);
         }else if(gamepad1.dpad_up){
-            hopperServo.setPosition(.75);
+            ClimberLeft.setPosition(ClimberLeftStart);
+        }
+
+        if(gamepad2.dpad_left){
+            ClimberRight.setPosition(ClimberRightDown);
+        }else if(gamepad2.dpad_down) {
+            ClimberRight.setPosition(ClimberRightUp);
+        }else if(gamepad2.dpad_up){
+            ClimberRight.setPosition(ClimberRightStart);
+        }
+
+        if(gamepad1.left_bumper){
+            ClimberDump.setPosition(ClimberDumpUp);
+        }else if(gamepad1.right_bumper){
+            ClimberDump.setPosition(ClimberDumpDown);
         }
 
     }
