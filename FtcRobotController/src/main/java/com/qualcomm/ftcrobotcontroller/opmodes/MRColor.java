@@ -56,10 +56,11 @@ public class MRColor extends LinearOpMode {
   ColorSensor sensorRGBL;
   ColorSensor sensorRGBR;
 
+  String leftGuess;
+  String rightGuess;
 
   @Override
   public void runOpMode() throws InterruptedException {
-
     // write some device information (connection info, name and type)
     // to the log file.
     hardwareMap.logDevices();
@@ -146,20 +147,49 @@ public class MRColor extends LinearOpMode {
       Color.RGBToHSV(sensorRGBL.red() * 8, sensorRGBL.green() * 8, sensorRGBL.blue() * 8, hsvLValues);
       Color.RGBToHSV(sensorRGBR.red() * 8, sensorRGBR.green() * 8, sensorRGBR.blue() * 8, hsvRValues);
 
-      // send the info back to driver station using telemetry function.
-      telemetry.addData("LEFT", "");
-      telemetry.addData("Clear", sensorRGBL.alpha());
-      telemetry.addData("Red  ", sensorRGBL.red());
-      telemetry.addData("Green", sensorRGBL.green());
-      telemetry.addData("Blue ", sensorRGBL.blue());
-      telemetry.addData("Hue", hsvLValues[0]);
+      // Make an educated guess on what the colors are
+      if (sensorRGBL.green() < 6){
+          // Either red or blue
+          if (sensorRGBL.red() >= sensorRGBL.blue()){
+              leftGuess = "Red";
+          } else {
+              leftGuess = "Blue";
+          }
+      } else if (sensorRGBL.green() < 15){
+          // Gray
+          leftGuess = "Gray";
+      } else {
+          // White
+          leftGuess = "White";
+      }
 
-      telemetry.addData("RIGHT", "");
-      telemetry.addData("Clear", sensorRGBR.alpha());
-      telemetry.addData("Red  ", sensorRGBR.red());
-      telemetry.addData("Green", sensorRGBR.green());
-      telemetry.addData("Blue ", sensorRGBR.blue());
-      telemetry.addData("Hue", hsvRValues[0]);
+      if (sensorRGBR.green() < 6){
+          // Either red or blue
+          if (sensorRGBR.red() >= sensorRGBR.blue()){
+              rightGuess = "Red";
+          } else {
+              rightGuess = "Blue";
+          }
+      } else if (sensorRGBR.green() < 15){
+          // Gray
+          rightGuess = "Gray";
+      } else {
+          // White
+          rightGuess = "White";
+      }
+
+      // send the info back to driver station using telemetry function
+      telemetry.addData("L blue", sensorRGBL.blue());
+      telemetry.addData("L green", sensorRGBL.green());
+      telemetry.addData("L red", sensorRGBL.red());
+      telemetry.addData("L zClear", sensorRGBL.alpha());
+      telemetry.addData("L zPrediction", leftGuess);
+
+      telemetry.addData("R blue", sensorRGBR.blue());
+      telemetry.addData("R green", sensorRGBR.green());
+      telemetry.addData("R red", sensorRGBR.red());
+      telemetry.addData("R zClear", sensorRGBR.alpha());
+      telemetry.addData("R zPrediction", rightGuess);
 
       // change the background color to match the color detected by the RGB sensor.
       // pass a reference to the hue, saturation, and value array as an argument

@@ -66,6 +66,37 @@ public class BBotStevenBaseCode extends OpMode {
 
     @Override
     public void loop() {
+        /*if (sensorRGBL.green() < 10){
+          // Either red or blue
+          if (sensorRGBL.red() >= sensorRGBL.blue()){
+              leftGuess = "Red";
+          } else {
+              leftGuess = "Blue";
+          }
+      } else if (sensorRGBL.green() < 25){
+          // Gray
+          leftGuess = "Gray";
+      } else {
+          // White
+          leftGuess = "White";
+      }
+
+      if (sensorRGBR.green() < 10){
+          // Either red or blue
+          if (sensorRGBR.red() >= sensorRGBR.blue()){
+              rightGuess = "Red";
+          } else {
+              rightGuess = "Blue";
+          }
+      } else if (sensorRGBR.green() < 25){
+          // Gray
+          rightGuess = "Gray";
+      } else {
+          // White
+          rightGuess = "White";
+      }*/
+
+
         sensorRGBR.enableLed(true);
         sensorRGBL.enableLed(true);
         // Find the sum of the Red, Green, and Blue that the sensors are currently showing

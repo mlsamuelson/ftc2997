@@ -65,15 +65,20 @@ public class BBotsTeleopArcadeMode extends OpMode {
         //calculate the power needed for each motor
         float leftPower = yValue + xValue;
         float rightPower = yValue - xValue;
+        float leftPower2 = yValue + xValue;
+        float rightPower2 = yValue - xValue;
 
         //clip the power values so that it only goes from -1 to 1
         leftPower = Range.clip(leftPower, -1, 1)/2;
         rightPower = Range.clip(rightPower, -1, 1)/2;
+        leftPower2 = Range.clip(leftPower, -1, 1);
+        rightPower2 = Range.clip(rightPower, -1, 1);
+
 
         LeftA.setPower(leftPower);
-        LeftB.setPower(leftPower);
+        LeftB.setPower(leftPower2);
         RightA.setPower(rightPower);
-        RightB.setPower(rightPower);
+        RightB.setPower(rightPower2);
 
         //set the power of the motors with the gamepad values
         if(gamepad1.b){
