@@ -78,6 +78,9 @@ public class FtcOpModeRegister implements OpModeRegister {
     manager.register("ChangeColor", LinearI2cAddressChangeBBB.class);
     //manager.register("HTRGBExample", HTRGBExample.class);
 
+    // For the play...  For use with the Dalek config.
+    manager.register("Dalek", Dalek.class);
+
     //manager.register("IrSeekerOp", IrSeekerOp.class);
     //manager.register("CompassCalibration", CompassCalibration.class);
     //manager.register("I2cAddressChangeExample", LinearI2cAddressChange.class);
