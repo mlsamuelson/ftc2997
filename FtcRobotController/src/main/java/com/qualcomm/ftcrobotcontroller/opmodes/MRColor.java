@@ -50,7 +50,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
  * You can use the X button on either gamepad to turn the LED on and off.
  *
  */
-public class MRColor extends LinearOpMode {
+public class    MRColor extends LinearOpMode {
 
   ColorSensor sensorRGBL;
   ColorSensor sensorRGBR;
@@ -117,6 +117,14 @@ public class MRColor extends LinearOpMode {
       } else {
           leftGuess = "Gray";
       }
+      if (sensorRGBR.blue() <= 1){
+        rightGuess = "Red";
+      } else if (sensorRGBR.blue() >= 4.75){
+        rightGuess = "Blue";
+      } else {
+        rightGuess = "Gray";
+      }
+
 
       // send the info back to driver station using telemetry function
       telemetry.addData("L blue", sensorRGBL.blue());
@@ -125,12 +133,12 @@ public class MRColor extends LinearOpMode {
       telemetry.addData("L zClear", sensorRGBL.alpha());
       telemetry.addData("L zPrediction", leftGuess);
 
-/*      telemetry.addData("R blue", sensorRGBR.blue());
+      telemetry.addData("R blue", sensorRGBR.blue());
       telemetry.addData("R green", sensorRGBR.green());
       telemetry.addData("R red", sensorRGBR.red());
       telemetry.addData("R zClear", sensorRGBR.alpha());
       telemetry.addData("R zPrediction", rightGuess);
-*/
+
       // change the background color to match the color detected by the RGB sensor.
       // pass a reference to the hue, saturation, and value array as an argument
       // to the HSVToColor method.

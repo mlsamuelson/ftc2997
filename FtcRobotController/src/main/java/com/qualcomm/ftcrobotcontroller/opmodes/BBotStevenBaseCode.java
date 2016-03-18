@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 //import com.qualcomm.ftcrobotcontroller.R;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 
-
 /**
  Created by: Steven Schofield
  Date of creation: 11/13/2015
@@ -18,13 +17,15 @@ public class BBotStevenBaseCode extends OpMode {
     DcMotor lMotor2;
     DcMotor rMotor2;
 
-    int turnWay1;
-    int turnWay2;
-    int MAX_COLOR;
-    int color_value_LEFT;
-    int color_value_RIGHT;
+    float turnWay1;
+    float turnWay2;
 
-    enum State {FOREWARDS, LINE_FOLLOW, END}
+    int color_LEFT;
+    int color_RIGHT;
+
+    int wait;
+
+    enum State {WAIT, FOREWARDS, LINE_FOLLOW, END}
     State state;
 
     ColorSensor sensorRGBL;
@@ -37,14 +38,18 @@ public class BBotStevenBaseCode extends OpMode {
         lMotor2 = hardwareMap.dcMotor.get("LeftB");
         rMotor2 = hardwareMap.dcMotor.get("RightB");
 
+        // Initialise the wait variable
+        wait = 0;
+
         // Reverse the LEFT motors because the robot is running backwards
         lMotor.setDirection(DcMotor.Direction.REVERSE);
         lMotor2.setDirection(DcMotor.Direction.REVERSE);
 
-        state = State.FOREWARDS;
+        state = State.WAIT;
         // These will change. They are listed here so this program can run by itself.
-        turnWay1 = 1;
-        turnWay2 = 1/2;
+        turnWay1 = 1/2;
+        turnWay2 = 1;
+        // TURN WAYS SET FOR BLUE TEAM!!!!!
 
         // get a reference to our ColorSensor object.
         sensorRGBL = hardwareMap.colorSensor.get("MRColor_left");
@@ -55,103 +60,76 @@ public class BBotStevenBaseCode extends OpMode {
         sensorRGBR.setI2cAddress(0x70);
 
         // Enable the LED lights on both sensors
-
-
-        // These are the sensor values that mark the range of values
-        MAX_COLOR = 6;
-
-        sensorRGBR.enableLed(false);
-        sensorRGBL.enableLed(false);
+        sensorRGBR.enableLed(true);
+        sensorRGBL.enableLed(true);
     }
 
     @Override
     public void loop() {
-        /*if (sensorRGBL.green() < 10){
-          // Either red or blue
-          if (sensorRGBL.red() >= sensorRGBL.blue()){
-              leftGuess = "Red";
-          } else {
-              leftGuess = "Blue";
-          }
-      } else if (sensorRGBL.green() < 25){
-          // Gray
-          leftGuess = "Gray";
-      } else {
-          // White
-          leftGuess = "White";
-      }
+        if (wait == 0){
+            this.resetStartTime();
+            wait ++;
+        }
 
-      if (sensorRGBR.green() < 10){
-          // Either red or blue
-          if (sensorRGBR.red() >= sensorRGBR.blue()){
-              rightGuess = "Red";
-          } else {
-              rightGuess = "Blue";
-          }
-      } else if (sensorRGBR.green() < 25){
-          // Gray
-          rightGuess = "Gray";
-      } else {
-          // White
-          rightGuess = "White";
-      }*/
-
-
-        sensorRGBR.enableLed(true);
-        sensorRGBL.enableLed(true);
-        // Find the sum of the Red, Green, and Blue that the sensors are currently showing
-        color_value_LEFT = sensorRGBL.red()+sensorRGBL.blue();
-        color_value_RIGHT = sensorRGBR.red()+sensorRGBR.blue()-3;
-        // They are defined outside of the state so they can be used everywhere
-        // They are defined inside the loop so that they get defined over and over
-
+        // Find if one color sensor is on red/blue or not.
+        // 1 is on red/blue. 0 is not.
+        // For the If Statements, the first number is between red & gray,
+        // Second number is between blue and gray
+        // If needed, blue() can be changed to green(), red(), or alpha()
+        // First set of If Statements are for the right, second for the left
+        // Note: zClear, Hue, and Alpha are all the same.
+        if (sensorRGBR.blue() <= 2 || sensorRGBR.blue() >= 6){
+            color_RIGHT = 1;
+        } else {
+            color_RIGHT = 0;
+        }
+        if (sensorRGBL.blue() <= 0.5 || sensorRGBL.blue() >= 4){
+            color_LEFT = 1;
+        } else {
+            color_LEFT = 0;
+        }
         switch(state){
+            case WAIT:
+                if (this.getRuntime() > 9.0){
+                    state = State.FOREWARDS;
+                }
+                break;
             case FOREWARDS:
                 // If either sensor is on the line...
-                if (color_value_LEFT < MAX_COLOR ||
-                    color_value_RIGHT < MAX_COLOR){
+                if (color_LEFT == 1 || color_RIGHT < 1){
                     // ...then change the state to lineFollow
                     state = State.LINE_FOLLOW;
                 } else {
                     // Otherwise, move forwards
-                    /*lMotor.setPower(0.5);
+                    lMotor.setPower(0.5);
                     rMotor.setPower(0.5);
                     lMotor2.setPower(0.5);
-                    rMotor2.setPower(0.5);*/
+                    rMotor2.setPower(0.5);
                 }
                 break;
             case LINE_FOLLOW:
-                if (color_value_LEFT < MAX_COLOR &&
-                    color_value_RIGHT < MAX_COLOR){
+                if (color_LEFT == 1 && color_RIGHT == 1){
                     // If BOTH sensors are on the line, then the program can continue.
                     state = State.END;
 
                     // Otherwise, if either sensor is on the line...
-                } else if (color_value_LEFT < MAX_COLOR ||
-                           color_value_RIGHT < MAX_COLOR){
+                } else if (color_LEFT == 1 || color_RIGHT == 1){
                     // ... then turn in the "first" direction.
-                    /*lMotor.setPower(turnWay1);
+                    lMotor.setPower(turnWay1);
                     rMotor.setPower(turnWay2);
                     lMotor2.setPower(turnWay1);
-                    rMotor2.setPower(turnWay2);*/
-                    telemetry.addData("EITHER SENSOR IS ON LINE! Left", color_value_LEFT);
-                    telemetry.addData("Right", color_value_RIGHT);
+                    rMotor2.setPower(turnWay2);
 
                     // Otherwise, if neither sensor are on the line/both are on the ground.
-                } else if (color_value_LEFT <= MAX_COLOR &&
-                           color_value_RIGHT <= MAX_COLOR){
+                } else if (color_LEFT == 0 && color_RIGHT == 0){
                     // ... then turn in the "second" direction
-                    telemetry.addData("NEITHER SENSOR ARE ON THE LINE! Left", color_value_LEFT);
-                    telemetry.addData("Right", color_value_RIGHT);
-                    /*lMotor.setPower(turnWay2);
+                    lMotor.setPower(turnWay2);
                     rMotor.setPower(turnWay1);
                     lMotor2.setPower(turnWay2);
-                    rMotor2.setPower(turnWay1);*/
+                    rMotor2.setPower(turnWay1);
                 }
                 break;
             case END:
-                telemetry.addData("Left", color_value_LEFT);
-                telemetry.addData("Right", color_value_RIGHT);
                 lMotor.setPower(0);
                 rMotor.setPower(0);
                 lMotor2.setPower(0);
@@ -159,6 +137,18 @@ public class BBotStevenBaseCode extends OpMode {
                 break;
         }
         telemetry.addData("state", state);
+        telemetry.addData("Left", color_LEFT);
+        telemetry.addData("Right", color_RIGHT);
+
+        telemetry.addData("L blue", sensorRGBL.blue());
+        telemetry.addData("L green", sensorRGBL.green());
+        telemetry.addData("L red", sensorRGBL.red());
+        telemetry.addData("L zClear", sensorRGBL.alpha());
+
+        telemetry.addData("R blue", sensorRGBR.blue());
+        telemetry.addData("R green", sensorRGBR.green());
+        telemetry.addData("R red", sensorRGBR.red());
+        telemetry.addData("R zClear", sensorRGBR.alpha());
     }
 }
 // http://ftc.edu.intelitek.com/mod/scorm/player.php

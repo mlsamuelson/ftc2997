@@ -80,11 +80,11 @@ public class Yoga_Bot extends OpMode {
         }
 
         if(gamepad2.a){
-            Winch.setPower(.5);
+            Winch.setPower(1);
             ClimberLeft.setPosition(ClimberLeftUp);
             ClimberRight.setPosition(ClimberRightUp);
         }else if (gamepad2.y || gamepad1.y){
-            Winch.setPower(-.5);
+            Winch.setPower(-1);
             ClimberLeft.setPosition(ClimberLeftDown);
             ClimberRight.setPosition(ClimberRightDown);
         }else{
@@ -92,9 +92,9 @@ public class Yoga_Bot extends OpMode {
         }
 
         if (gamepad2.x){
-            Rack.setPower(.5);
+            Rack.setPower(1);
         }else if (gamepad2.b){
-            Rack.setPower(-0.5);
+            Rack.setPower(-1);
         }else{
             Rack.setPower(0);
         }
