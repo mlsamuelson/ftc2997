@@ -45,8 +45,8 @@ public class BBotsBlueAutonomous extends LinearOpMode {
        //sensorRGBR.enableLed(true);
         //sensorRGBL.enableLed(true);
             Sweeper.setPower(1);
-            lMotor.setPower(-0.9);
-            lMotor2.setPower(-0.9);
+            lMotor.setPower(-1.0); // -0.9); Commented out now that the drivetrain motor gearing matches.
+            lMotor2.setPower(-1.0); // -0.9);
             rMotor.setPower(-1.0);
             rMotor2.setPower(-1.0);
 
