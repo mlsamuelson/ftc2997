@@ -1,0 +1,35 @@
+Robot Parked partially on Center Vortex base .....5 points
+Robot Parked fully on Center Vortex base .........10 points
+
+Robot Parked partially on Corner Vortex..............5 points
+Robot Parked fully on Corner Vortex ..................10 points
+
+Particle scored in Center Vortex ........... 15 points/Particle
+Particle scored in Corner Vortex............. 5 points/Particle
+
+Cap Ball in contact with the floor ..........................5 points
+
+Claimed Beacon.................................... 30 points/Beacon
+
+
+1.
+Get one beacon. Aim for parking on the center. Knock cap ball off. Launch 1-2 
+balls at center vortex.
+Max points: 75
+
+2.
+Get both beacons. Aim for parking on the center. Knock cap ball off. Launch 1-2
+balls at center vortex.
+Max points: 105
+
+3.
+Get one beacon. Aim for parking on corner. Launch 1-2 balls at corner vortex.
+Max points: 50
+
+4.
+Get two beacons. Aim for parking on corner. Launch 1-2 balls at corner vortex.
+Max points: 80
+
+
+Focus on programs 1 and 3. Programs 2 and 4 should extend programs 1 and 3, maybe
+redefining a function or making one available.
