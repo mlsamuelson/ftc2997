@@ -1,1 +1,48 @@
-// First, get one beacon
+/*****
+ * One thing that I think would be nice is that if the robot could tell what
+ *  team it was on.
+*****/
+Start
+// I'll define the functions first. 
+
+// First,the findTeamColor function
+function findTeamColor START
+    // This is assuming that there is a color sensor pointing at one of the balls
+    // Really, it's just comparing the values of the color sensor and returning
+    // Specific values.
+    if (colorsensor.blue > colorsensor.red){ // If blue is seen...
+        return {team: blue, turn1: 1, turn2: -1}; // ... return an object with 
+        // specific values (The turn values & names might change)
+    } else {    // Otherwise (red is seen)...
+        return {team: red, turn1: -1, turn2: 1}; // ... return an object with
+        // other values
+    }
+END FUNCTION
+
+// Next is the pressBeacon function
+function pressBeacon(color) START
+    // Using the color, press the beacon
+    // This cannot be done until I know how this mechanism will work
+END
+
+// Now for the findBeacon function
+function findBeacon(color) START
+    // First, the beacon will be choosen. This will be done using the new software
+    
+    // Then the bot will approch the beacon
+    // The beacon will then be pressed
+    pressBeacon(color);
+END FUNCTION
+
+// Now for the running code.
+// First, pre-define all variables
+var movement = {};      // This will hold the team color and movement modifyers
+
+// Now for the code that will run once the play button has been pressed.
+// First, find the team color and directions
+movement = findTeamColor();
+
+// Now find the beacon & go to it.
+findBeacon();
+
+// Attack the cap ball!

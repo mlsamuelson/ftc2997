@@ -31,5 +31,5 @@ Get two beacons. Aim for parking on corner. Launch 1-2 balls at corner vortex.
 Max points: 80
 
 
-Focus on programs 1 and 3. Programs 2 and 4 should extend programs 1 and 3, maybe
-redefining a function or making one available.
+Focus on programs 1 and 3. Programs 2 and 4 should extend programs 1 and 3 by re-
+defining the function that finds the beacons & then heads for the center

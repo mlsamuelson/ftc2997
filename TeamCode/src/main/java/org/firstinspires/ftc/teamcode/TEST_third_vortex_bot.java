@@ -6,12 +6,13 @@ import com.qualcomm.robotcore.util.Range;
 
 /**
  * Created by Steven on 9/28/2016.
- * Last edited on 10/3/2016
+ * Last edited on 11/5/2016
  */
  
 @TeleOp(name="Test: Vortex MK3", group="Iterative Opmode");
  
 public class firstVortexBotMK3 extends OpMode {
+    // Initialize variables
     DcMotor left_front;
     DcMotor right_front;
     DcMotor left_back;
@@ -19,6 +20,7 @@ public class firstVortexBotMK3 extends OpMode {
 
     @Override
     public void init() {
+        // Set motors
         right_front = hardwareMap.dcMotor.get("motor_2");
         left_front = hardwareMap.dcMotor.get("motor_1");
         right_back = hardwareMap.dcMotor.get("motor_3");
@@ -27,18 +29,27 @@ public class firstVortexBotMK3 extends OpMode {
 
     @Override
     public void loop() {
-        float left_power;
-        float right_power;
-
-        float turn = (float)scaleInput(gamepad1.right_stick_y);
-
-        left_power = turn;
-        right_power = turn;
-
-        left_front.setPower((float)scaleInput(left_power));
-        left_back.setPower((float)scaleInput(left_power));
-        right_front.setPower((float)scaleInput(right_power));
-        right_back.setPower((float)scaleInput(right_power));
+        // Using the information on the PDF, match the motors to fit with the sticks
+        float drive = 1-gamepad1.left_stick_y;
+        float strafe = gamepad1.left_stick_x;
+        float rotate = gamepad1.right_stick_x;
+        
+        float fl_pow = drive + strafe + rotate;
+        float bl_pow = drive - strafe + rotate;
+        float fr_pow = drive - strafe - rotate;
+        float br_pow = drive + strafe - rotate;
+        
+        // Scale the inputs to fit the motors
+        fl_pow = scaleInput(fl_pow);
+        bl_pow = scaleInput(bl_pow);
+        fr_pow = scaleInput(fr_pow);
+        br_pow = scaleInput(br_pow);
+        
+        // Assign values
+        left_front.setPower(fl_pow);
+        left_back.setPower(bl_pow);
+        right_front.setPower(fr_pow);
+        right_back.setPower(br_pow);
     }
 
     double scaleInput(double dVal)  {
