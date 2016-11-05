@@ -1,6 +1,7 @@
-package com.qualcomm.ftcrobotcontroller.opmodes;
+package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
@@ -8,10 +9,10 @@ import com.qualcomm.robotcore.util.Range;
  * Created by Steven on 9/22/2016.
  * Last edited on 10/3/2016
  */
+
+@TeleOp(name="Template: Iterative OpMode", group="Iterative Opmode")
  
-@TeleOp(name="Test: Vortex MK2", group="Iterative Opmode");
- 
-public class firstVortexBotMK2 extends OpMode {
+public class TEST_second_vortex_bot extends OpMode {
     DcMotor left_front;
     DcMotor right_front;
     DcMotor left_back;

@@ -1,6 +1,7 @@
-package com.qualcomm.ftcrobotcontroller.opmodes;
+package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
@@ -8,10 +9,10 @@ import com.qualcomm.robotcore.util.Range;
  * Created by Steven on 9/28/2016.
  * Last edited on 11/5/2016
  */
- 
-@TeleOp(name="Test: Vortex MK3", group="Iterative Opmode");
- 
-public class firstVortexBotMK3 extends OpMode {
+
+@TeleOp(name="Template: Iterative OpMode", group="Iterative Opmode")
+
+public class TEST_third_vortex_bot extends OpMode {
     // Initialize variables
     DcMotor left_front;
     DcMotor right_front;
@@ -40,10 +41,10 @@ public class firstVortexBotMK3 extends OpMode {
         float br_pow = drive + strafe - rotate;
         
         // Scale the inputs to fit the motors
-        fl_pow = scaleInput(fl_pow);
-        bl_pow = scaleInput(bl_pow);
-        fr_pow = scaleInput(fr_pow);
-        br_pow = scaleInput(br_pow);
+        fl_pow = (float) scaleInput(fl_pow);
+        bl_pow = (float) scaleInput(bl_pow);
+        fr_pow = (float) scaleInput(fr_pow);
+        br_pow = (float) scaleInput(br_pow);
         
         // Assign values
         left_front.setPower(fl_pow);
