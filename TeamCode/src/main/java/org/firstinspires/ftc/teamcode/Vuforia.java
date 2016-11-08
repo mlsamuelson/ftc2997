@@ -28,8 +28,20 @@ public class VuforiaOp extends LinearOpMode {
         
         while (opmodeIsActive()) {
             for (VuforiaTrackable beac : beacons){
+                OpenGLMatrix pose = ((VuforiaTrackableDefaultListener) beac.getListener()).getPose;
                 
+                if (pose != null){
+                    VectorF translation = pose.getTranslation();
+                    
+                    telemetry.addData(beac.getName() + "-Translation", translation);
+                    
+                    double degreesToTurn = Math.toDegrees(Math.aTan2(translation.get(1), translation.get(2));   // the two translations are for vertical phone (y and x). 0 and 2 for horizontal
+                    
+                    telemetry.addData(beac.getName() + "-Degrees", degreesToTurn);
+                }
             }
+            
+            telemetry.update();
         }
         
     }
