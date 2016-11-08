@@ -40,10 +40,10 @@ public class firstVortexBotMK3 extends OpMode {
         float br_pow = drive + strafe - rotate;
         
         // Scale the inputs to fit the motors
-        fl_pow = scaleInput(fl_pow);
-        bl_pow = scaleInput(bl_pow);
-        fr_pow = scaleInput(fr_pow);
-        br_pow = scaleInput(br_pow);
+        fl_pow = (float)scaleInput(fl_pow);
+        bl_pow = (float)scaleInput(bl_pow);
+        fr_pow = (float)scaleInput(fr_pow);
+        br_pow = (float)scaleInput(br_pow);
         
         // Assign values
         left_front.setPower(fl_pow);
