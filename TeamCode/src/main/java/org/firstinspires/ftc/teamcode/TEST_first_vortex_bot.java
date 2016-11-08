@@ -1,6 +1,7 @@
-package com.qualcomm.ftcrobotcontroller.opmodes;
+package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
@@ -8,10 +9,10 @@ import com.qualcomm.robotcore.util.Range;
  * Created by Steven on 9/14/2016.
  * Last edited on 10/3/2016
  */
- 
-@TeleOp(name="Test: Vortex MK1", group="Iterative Opmode");
 
-public class firstVortexBot extends OpMode {
+@TeleOp(name="Template: Iterative OpMode", group="Iterative Opmode")
+
+public class TEST_first_vortex_bot extends OpMode {
     // Initialize DcMotor variables
     DcMotor left_front;
     DcMotor right_front;
@@ -27,7 +28,7 @@ public class firstVortexBot extends OpMode {
         left_front = hardwareMap.dcMotor.get("motor_1");
         right_back = hardwareMap.dcMotor.get("motor_3");
         left_back = hardwareMap.dcMotor.get("motor_4");
-        other = hardwarePam.dcMotor.get("motor_5");
+        other = hardwareMap.dcMotor.get("motor_5");
     }
     
     // Code that runs after the play button is pressed
