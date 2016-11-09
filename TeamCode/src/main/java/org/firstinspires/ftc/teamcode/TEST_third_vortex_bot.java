@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.util.Range;
  * Last edited on 11/5/2016
  */
 
-@TeleOp(name="Template: Iterative OpMode", group="Iterative Opmode")
+@TeleOp(name="Test: Drive3", group="S Tests")
 
 public class TEST_third_vortex_bot extends OpMode {
     // Initialize variables

@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.util.Range;
  * Last edited on 10/3/2016
  */
 
-@TeleOp(name="Template: Iterative OpMode", group="Iterative Opmode")
+@TeleOp(name="Test: Drive2", group="S Tests")
  
 public class TEST_second_vortex_bot extends OpMode {
     DcMotor left_front;
