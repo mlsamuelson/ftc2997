@@ -3,54 +3,111 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.Range;
 
 /**
  * Created by Steven on 9/28/2016.
- * Last edited on 11/5/2016
+ * Last edited on 11/15/2016
  */
 
 @TeleOp(name="Test: Drive3", group="S Tests")
 
 public class TEST_third_vortex_bot extends OpMode {
-    // Initialize variables
+    // Declare variables
     DcMotor left_front;
     DcMotor right_front;
     DcMotor left_back;
     DcMotor right_back;
+    DcMotor intake;
+    DcMotor launcher;
+
+    double intake_pow;
+    double launcher_pow;
 
     @Override
     public void init() {
-        // Set motors
-        right_front = hardwareMap.dcMotor.get("motor_2");
-        left_front = hardwareMap.dcMotor.get("motor_1");
-        right_back = hardwareMap.dcMotor.get("motor_3");
-        left_back = hardwareMap.dcMotor.get("motor_4");
+        // Initiate motors
+        right_front = hardwareMap.dcMotor.get("r_front");
+        left_front = hardwareMap.dcMotor.get("l_front");
+        right_back = hardwareMap.dcMotor.get("r_back");
+        left_back = hardwareMap.dcMotor.get("l_back");
+        intake = hardwareMap.dcMotor.get("intake");
+        launcher = hardwareMap.dcMotor.get("launcher");
+
+        // Initiate powers
+        intake_pow = 0;
+        launcher_pow = 0;
     }
 
     @Override
     public void loop() {
         // Using the information on the PDF, match the motors to fit with the sticks
-        float drive = 1-gamepad1.left_stick_y;
+        float drive = gamepad1.left_stick_y;
         float strafe = gamepad1.left_stick_x;
         float rotate = gamepad1.right_stick_x;
-        
+
         float fl_pow = drive + strafe + rotate;
         float bl_pow = drive - strafe + rotate;
         float fr_pow = drive - strafe - rotate;
         float br_pow = drive + strafe - rotate;
-        
+
+        // Use gamepad buttons to turn the intake on (X) and off (B)
+        if (gamepad1.x) {
+            if (gamepad1.y) {
+                intake_pow = 0;
+            } else {
+                intake_pow = 0.5;
+            }
+        } else if (gamepad1.b) {
+            intake_pow = 0;
+        }
+        if (gamepad1.y) {
+            if (gamepad1.x){
+                intake_pow = 0;
+            } else {
+                intake_pow = -0.5;
+            }
+        } else {
+            intake_pow = 0;
+        }
+        // Use the gamepad bumpers to turn the launcher on and off
+        if (gamepad1.right_bumper) {
+            launcher_pow = 0.5;
+        } else {
+            launcher_pow = 0;
+        }
+
         // Scale the inputs to fit the motors
         fl_pow = (float) scaleInput(fl_pow);
         bl_pow = (float) scaleInput(bl_pow);
         fr_pow = (float) scaleInput(fr_pow);
         br_pow = (float) scaleInput(br_pow);
-        
+
+        intake_pow = (float) scaleInput(intake_pow);
+        launcher_pow = (float) scaleInput(launcher_pow);
+
         // Assign values
         left_front.setPower(fl_pow);
         left_back.setPower(bl_pow);
         right_front.setPower(fr_pow);
         right_back.setPower(br_pow);
+
+        intake.setPower(intake_pow);
+        launcher.setPower(launcher_pow);
+
+        // Show values
+        telemetry.addData("1. Right stick X", gamepad1.right_stick_x);
+        telemetry.addData("2. Left stick X", gamepad1.left_stick_x);
+        telemetry.addData("3. Left stick Y", gamepad1.left_stick_y);
+
+        // Add space
+        telemetry.addData("4. ", "");
+
+        // Show power values
+        telemetry.addData("5. Front Left:", fl_pow);
+        telemetry.addData("6. Front Right:", fr_pow);
+        telemetry.addData("7. Back Left:", bl_pow);
+        telemetry.addData("8. Back Right:", br_pow);
+
     }
 
     double scaleInput(double dVal)  {

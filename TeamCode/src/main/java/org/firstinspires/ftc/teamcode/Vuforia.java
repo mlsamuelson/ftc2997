@@ -11,10 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
-/*
-https://www.youtube.com/watch?v=2z-o9Ts8XoE
 
-*/
 @Autonomous(name = "Test: Vuforia", group = "S Tests")
 
 public class Vuforia extends LinearOpMode {
@@ -26,8 +23,7 @@ public class Vuforia extends LinearOpMode {
         params.cameraMonitorFeedback = VuforiaLocalizer.Parameters.CameraMonitorFeedback.TEAPOT;
         
         VuforiaLocalizer vuforia = ClassFactory.createVuforiaLocalizer(params);
-        //vuforia.setHint(HINT.HINT_MAX_SIMULTANEOUS_IMAGE_TARGETS, 4);
-
+        //Vuforia.setHint(HINT.HINT_MAX_SIMULTANEOUS_IMAGE_TARGETS, 4);
 
         VuforiaTrackables beacons = vuforia.loadTrackablesFromAsset("FTC_2016-17");
         beacons.get(0).setName("Wheels");
@@ -40,22 +36,21 @@ public class Vuforia extends LinearOpMode {
         beacons.activate();
 
         while (opModeIsActive()) {
-            for (VuforiaTrackable beac : beacons){
+            for (VuforiaTrackable beac : beacons) {
                 OpenGLMatrix pose = ((VuforiaTrackableDefaultListener) beac.getListener()).getPose();
-                
-                if (pose != null){
+
+                if (pose != null) {
                     VectorF translation = pose.getTranslation();
-                    
+
                     telemetry.addData(beac.getName() + "-Translation", translation);
-                    
+
                     double degreesToTurn = Math.toDegrees(Math.atan2(translation.get(1), translation.get(2)));   // the two translations are for vertical phone (y and x). 0 and 2 for horizontal
-                    
+
                     telemetry.addData(beac.getName() + "-Degrees", degreesToTurn);
                 }
             }
-            
+
             telemetry.update();
         }
-        
     }
 }
