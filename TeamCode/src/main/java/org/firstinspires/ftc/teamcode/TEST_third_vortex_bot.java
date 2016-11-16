@@ -19,7 +19,7 @@ public class TEST_third_vortex_bot extends OpMode {
     DcMotor right_back;
     DcMotor intake;
     DcMotor launcher;
-
+    
     double intake_pow;
     double launcher_pow;
 
@@ -30,12 +30,14 @@ public class TEST_third_vortex_bot extends OpMode {
         left_front = hardwareMap.dcMotor.get("l_front");
         right_back = hardwareMap.dcMotor.get("r_back");
         left_back = hardwareMap.dcMotor.get("l_back");
-        intake = hardwareMap.dcMotor.get("intake");
-        launcher = hardwareMap.dcMotor.get("launcher");
+        intake = hardwareMap.dcMotor.get("intake");         // NOT SET IN CONFIGURATION
+        launcher = hardwareMap.dcMotor.get("launcher");     // DITTO
 
         // Initiate powers
         intake_pow = 0;
         launcher_pow = 0;
+        // Powers are initiated here to remove errors and also so that they don't
+        //  reset to 0 every time the loop runs. 
     }
 
     @Override
@@ -50,25 +52,23 @@ public class TEST_third_vortex_bot extends OpMode {
         float fr_pow = drive - strafe - rotate;
         float br_pow = drive + strafe - rotate;
 
-        // Use gamepad buttons to turn the intake on (X) and off (B)
-        if (gamepad1.x) {
-            if (gamepad1.y) {
-                intake_pow = 0;
-            } else {
-                intake_pow = 0.5;
-            }
-        } else if (gamepad1.b) {
-            intake_pow = 0;
-        }
+        // Use gamepad buttons to turn the intake on (X),off (B), and reverse (Y)
+        // NOTE: These likely don't work. I am thinking that adding a Running 
+        // variable might help. 
+        // Also, the X, Y, and B buttons are all boolians (True or False), so no
+        // numbers are needed for the IF statements.
         if (gamepad1.y) {
-            if (gamepad1.x){
-                intake_pow = 0;
-            } else {
-                intake_pow = -0.5;
-            }
+            intake_pow = -0.5;
         } else {
             intake_pow = 0;
         }
+        
+        if (gamepad1.x) {
+            intake_pow = 0.5;
+        } else if (gamepad1.b) {
+            intake_pow = 0;
+        }
+        
         // Use the gamepad bumpers to turn the launcher on and off
         if (gamepad1.right_bumper) {
             launcher_pow = 0.5;
