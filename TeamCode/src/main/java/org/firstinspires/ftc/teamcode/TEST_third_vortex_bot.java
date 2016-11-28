@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 /**
  * Created by Steven on 9/28/2016.
@@ -17,11 +18,12 @@ public class TEST_third_vortex_bot extends OpMode {
     DcMotor right_front;
     DcMotor left_back;
     DcMotor right_back;
-    DcMotor intake;
-    DcMotor launcher;
+    //DcMotor intake;
+    //DcMotor launcher;
     
     double intake_pow;
     double launcher_pow;
+    boolean _drive;
 
     @Override
     public void init() {
@@ -30,14 +32,28 @@ public class TEST_third_vortex_bot extends OpMode {
         left_front = hardwareMap.dcMotor.get("l_front");
         right_back = hardwareMap.dcMotor.get("r_back");
         left_back = hardwareMap.dcMotor.get("l_back");
-        intake = hardwareMap.dcMotor.get("intake");         // NOT SET IN CONFIGURATION
-        launcher = hardwareMap.dcMotor.get("launcher");     // DITTO
+    //    intake = hardwareMap.dcMotor.get("intake");         // NOT SET IN CONFIGURATION
+    //    launcher = hardwareMap.dcMotor.get("launcher");     // DITTO
 
-        // Initiate powers
+        // Here is the problem with the motors:  with the front reversed:
+        /*
+        * turning strafes
+            * right moves right
+            * left moves left
+        * forward messed up
+            * front left & back right move forwards
+            * the other two move back
+        * strafe moves forewards
+            * left moves forewards
+            * right moves back
+        */
+
+        // Initiate powers & drive
         intake_pow = 0;
         launcher_pow = 0;
+        _drive = false;
         // Powers are initiated here to remove errors and also so that they don't
-        //  reset to 0 every time the loop runs. 
+        //  reset to 0 every time the loop runs.
     }
 
     @Override
@@ -53,22 +69,19 @@ public class TEST_third_vortex_bot extends OpMode {
         float br_pow = drive + strafe - rotate;
 
         // Use gamepad buttons to turn the intake on (X),off (B), and reverse (Y)
-        // NOTE: These likely don't work. I am thinking that adding a Running 
-        // variable might help. 
-        // Also, the X, Y, and B buttons are all boolians (True or False), so no
-        // numbers are needed for the IF statements.
-        if (gamepad1.y) {
-            intake_pow = -0.5;
-        } else {
-            intake_pow = 0;
-        }
-        
+        // NOT TESTED due to configuration problems
         if (gamepad1.x) {
             intake_pow = 0.5;
         } else if (gamepad1.b) {
             intake_pow = 0;
         }
-        
+
+        if (gamepad1.y){
+            intake_pow = Math.abs(intake_pow) * -1;
+        } else {
+            intake_pow = Math.abs(intake_pow);
+        }
+
         // Use the gamepad bumpers to turn the launcher on and off
         if (gamepad1.right_bumper) {
             launcher_pow = 0.5;
@@ -91,8 +104,8 @@ public class TEST_third_vortex_bot extends OpMode {
         right_front.setPower(fr_pow);
         right_back.setPower(br_pow);
 
-        intake.setPower(intake_pow);
-        launcher.setPower(launcher_pow);
+    //    intake.setPower(intake_pow);
+    //    launcher.setPower(launcher_pow);
 
         // Show values
         telemetry.addData("1. Right stick X", gamepad1.right_stick_x);
@@ -107,7 +120,6 @@ public class TEST_third_vortex_bot extends OpMode {
         telemetry.addData("6. Front Right:", fr_pow);
         telemetry.addData("7. Back Left:", bl_pow);
         telemetry.addData("8. Back Right:", br_pow);
-
     }
 
     double scaleInput(double dVal)  {
