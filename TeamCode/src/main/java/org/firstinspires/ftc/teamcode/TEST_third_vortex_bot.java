@@ -104,8 +104,8 @@ public class TEST_third_vortex_bot extends OpMode {
         right_front.setPower(fr_pow);
         right_back.setPower(br_pow);
 
-    //    intake.setPower(intake_pow);
-    //    launcher.setPower(launcher_pow);
+        //intake.setPower(intake_pow);
+        //launcher.setPower(launcher_pow);
 
         // Show values
         telemetry.addData("1. Right stick X", gamepad1.right_stick_x);
