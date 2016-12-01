@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 /**
  * Created by Steven on 9/28/2016.
- * Last edited on 11/15/2016
+ * Last edited on 11/30/2016
  */
 
 @TeleOp(name="Test: Drive3", group="S Tests")
@@ -35,18 +35,9 @@ public class TEST_third_vortex_bot extends OpMode {
     //    intake = hardwareMap.dcMotor.get("intake");         // NOT SET IN CONFIGURATION
     //    launcher = hardwareMap.dcMotor.get("launcher");     // DITTO
 
-        // Here is the problem with the motors:  with the front reversed:
-        /*
-        * turning strafes
-            * right moves right
-            * left moves left
-        * forward messed up
-            * front left & back right move forwards
-            * the other two move back
-        * strafe moves forewards
-            * left moves forewards
-            * right moves back
-        */
+        // Reverse right side
+        right_front.setDirection(DcMotorSimple.Direction.REVERSE);
+        right_back.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Initiate powers & drive
         intake_pow = 0;
@@ -63,10 +54,10 @@ public class TEST_third_vortex_bot extends OpMode {
         float strafe = gamepad1.left_stick_x;
         float rotate = gamepad1.right_stick_x;
 
-        float fl_pow = drive + strafe + rotate;
-        float bl_pow = drive - strafe + rotate;
-        float fr_pow = drive - strafe - rotate;
-        float br_pow = drive + strafe - rotate;
+        float fl_pow = drive - strafe + rotate;
+        float bl_pow = drive + strafe + rotate;
+        float fr_pow = drive + strafe - rotate;
+        float br_pow = drive - strafe - rotate;
 
         // Use gamepad buttons to turn the intake on (X),off (B), and reverse (Y)
         // NOT TESTED due to configuration problems
