@@ -15,8 +15,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefau
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
 /**
- * Created by Steven on 11/30/2016.
- * Last edited on 11/30/2016
+ * Created by Steven on 11/30/2016
+ * Last edited on 12/1/2016
  */
 
 @TeleOp(name="Test: auto1", group="Tests")
@@ -86,6 +86,7 @@ public class auto_test_1 extends OpMode {
          * 4: Park
          ***/
 
+        // Remember: This is for path 1: blue
         switch (switch_case){
             case 1:{
                 // Get vuforia information
@@ -101,12 +102,20 @@ public class auto_test_1 extends OpMode {
                 }
                 switch (step){
                     case 1: // FIND BEACON
+
                         break;
                     case 2: // TURN TOWARDS BEACON
+
                         break;
                     case 3: // GO TO BEACON
+
                         break;
                     case 4: // PRESS BEACON
+
+                        break;
+                    case 5: // TRANSITION
+
+                        break;
                 }
             }break;
             case 2:{
