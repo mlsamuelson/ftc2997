@@ -101,20 +101,17 @@ public class auto_test_1 extends OpMode {
                     }
                 }
                 switch (step){
-                    case 1: // FIND BEACON
-
+                    case 1: // TURN UNTIL BEACON IS FOUND
+                        
                         break;
-                    case 2: // TURN TOWARDS BEACON
-
-                        break;
-                    case 3: // GO TO BEACON
-
+                    case 2: // GO TO BEACON
+                        
                         break;
                     case 4: // PRESS BEACON
-
+                        
                         break;
                     case 5: // TRANSITION
-
+                        
                         break;
                 }
             }break;

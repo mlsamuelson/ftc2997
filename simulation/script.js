@@ -2,7 +2,7 @@ var canvas = document.getElementById("simulation_canvas");
 var ctx = canvas.getContext("2d");
 var width = canvas.width, height = canvas.height;
 
-var bot = {
+/*var bot = {
     color: "blue",
     score: 0,
     size: 75,
@@ -94,7 +94,7 @@ var bot = {
             return "green";
         }
     }
-};
+};*/
 
 function drawBackground(){
     ctx.fillStyle = "gray";
@@ -183,6 +183,8 @@ function drawBackground(){
     ctx.fill();
 }
 
+drawBackground()
+
 // TRY IT WITHOUT THE MAIN LOOP (LINEAR)
 /*setInterval(function() {
     ctx.clearRect(0, 0, width, height);
@@ -235,7 +237,7 @@ function drawBackground(){
     }
     //console.log(STATE);
     console.log(bot.checkColor());
-}, 1000/30);*/
+}, 1000/30);
 function BEGIN1(){
     console.log("BEGIN1");
     ctx.clearRect(0, 0, width, height);
@@ -276,4 +278,4 @@ var path1 = [BEGIN1, BEACON1, CENTER, LAUNCH];
 var path2 = [BEGIN1, BEACON1, BEACON2, LAUNCH];
 var paths = [path1, path2];
 
-var loop = setInterval(paths[path][path_pos], 100/3);
+var loop = setInterval(paths[path][path_pos], 100/3);*/
