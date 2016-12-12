@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 /**
  * Created by Steven on 9/28/2016.
- * Last edited on 11/30/2016
+ * Last edited on 12/12/2016
  */
 
 @TeleOp(name="Test: Drive3", group="S Tests")
@@ -18,8 +18,8 @@ public class TEST_third_vortex_bot extends OpMode {
     DcMotor right_front;
     DcMotor left_back;
     DcMotor right_back;
-    //DcMotor intake;
-    //DcMotor launcher;
+    DcMotor intake;
+    DcMotor launcher;
     
     double intake_pow;
     double launcher_pow;
@@ -32,8 +32,8 @@ public class TEST_third_vortex_bot extends OpMode {
         left_front = hardwareMap.dcMotor.get("l_front");
         right_back = hardwareMap.dcMotor.get("r_back");
         left_back = hardwareMap.dcMotor.get("l_back");
-    //    intake = hardwareMap.dcMotor.get("intake");         // NOT SET IN CONFIGURATION
-    //    launcher = hardwareMap.dcMotor.get("launcher");     // DITTO
+        intake = hardwareMap.dcMotor.get("collect");
+        launcher = hardwareMap.dcMotor.get("launch");
 
         // Reverse right side
         right_front.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -60,17 +60,10 @@ public class TEST_third_vortex_bot extends OpMode {
         float br_pow = drive - strafe - rotate;
 
         // Use gamepad buttons to turn the intake on (X),off (B), and reverse (Y)
-        // NOT TESTED due to configuration problems
         if (gamepad1.x) {
             intake_pow = 0.5;
         } else if (gamepad1.b) {
             intake_pow = 0;
-        }
-
-        if (gamepad1.y){
-            intake_pow = Math.abs(intake_pow) * -1;
-        } else {
-            intake_pow = Math.abs(intake_pow);
         }
 
         // Use the gamepad bumpers to turn the launcher on and off
@@ -95,22 +88,8 @@ public class TEST_third_vortex_bot extends OpMode {
         right_front.setPower(fr_pow);
         right_back.setPower(br_pow);
 
-        //intake.setPower(intake_pow);
-        //launcher.setPower(launcher_pow);
-
-        // Show values
-        telemetry.addData("1. Right stick X", gamepad1.right_stick_x);
-        telemetry.addData("2. Left stick X", gamepad1.left_stick_x);
-        telemetry.addData("3. Left stick Y", gamepad1.left_stick_y);
-
-        // Add space
-        telemetry.addData("4. ", "");
-
-        // Show power values
-        telemetry.addData("5. Front Left:", fl_pow);
-        telemetry.addData("6. Front Right:", fr_pow);
-        telemetry.addData("7. Back Left:", bl_pow);
-        telemetry.addData("8. Back Right:", br_pow);
+        intake.setPower(intake_pow);
+        launcher.setPower(launcher_pow);
     }
 
     double scaleInput(double dVal)  {

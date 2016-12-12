@@ -12,7 +12,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
-@Autonomous(name = "Test: Vuforia", group = "S Tests")
+@Autonomous(name = "Test: Vuforia", group = "finished")
 
 public class Vuforia extends LinearOpMode {
     @Override
