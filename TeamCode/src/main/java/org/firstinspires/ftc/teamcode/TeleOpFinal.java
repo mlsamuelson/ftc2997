@@ -1,3 +1,35 @@
+/*
+Copyright (c) 2016 Robert Atkinson
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted (subject to the limitations in the disclaimer below) provided that
+the following conditions are met:
+
+Redistributions of source code must retain the above copyright notice, this list
+of conditions and the following disclaimer.
+
+Redistributions in binary form must reproduce the above copyright notice, this
+list of conditions and the following disclaimer in the documentation and/or
+other materials provided with the distribution.
+
+Neither the name of Robert Atkinson nor the names of his contributors may be used to
+endorse or promote products derived from this software without specific prior
+written permission.
+
+NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
+LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESSFOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -5,14 +37,15 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+
 /**
- * Created by Steven on 9/28/2016.
- * Last edited on 12/13/2016
+ * Created by Steven on: 12/13/2016
+ * Last edited on: 12/13/2016
  */
 
-@TeleOp(name="Test: Drive3", group="S Tests")
+@TeleOp(name="Use this TeleOp", group="USE")
 
-public class TEST_third_vortex_bot extends OpMode {
+public class TeleOpFinal extends OpMode {
     // Declare variables
     DcMotor left_front;
     DcMotor right_front;
@@ -20,7 +53,7 @@ public class TEST_third_vortex_bot extends OpMode {
     DcMotor right_back;
     DcMotor intake;
     DcMotor launcher;
-    
+
     double intake_pow;
     double launcher_pow;
     int _drive;
@@ -47,20 +80,20 @@ public class TEST_third_vortex_bot extends OpMode {
 
     @Override
     public void loop() {
-        // Using the information on the PDF, match the motors to fit with the sticks
-        float drive = gamepad1.left_stick_y;
-        float strafe = gamepad1.left_stick_x;
-        float rotate = gamepad1.right_stick_x;
+        float driveLEFT = gamepad1.left_stick_y;
+        float strafeLEFT = gamepad1.left_stick_x;
+        float driveRIGHT = gamepad1.right_stick_y;
+        float strafeRIGHT = gamepad1.right_stick_x;
 
-        float fl_pow = drive - strafe + rotate;
-        float bl_pow = drive + strafe + rotate;
-        float fr_pow = drive + strafe - rotate;
-        float br_pow = drive - strafe - rotate;
+        float fl_pow = driveLEFT - strafeLEFT;
+        float bl_pow = driveLEFT + strafeLEFT;
+        float fr_pow = driveRIGHT + strafeRIGHT;
+        float br_pow = driveRIGHT - strafeRIGHT;
 
         // Use gamepad buttons to turn the intake on (X),off (B), and reverse (Y)
-        if (gamepad1.x) {
+        if (gamepad2.x) {
             _drive = 1;
-        } else if (gamepad1.b) {
+        } else if (gamepad2.b) {
             _drive = 0;
         }
 
@@ -70,12 +103,12 @@ public class TEST_third_vortex_bot extends OpMode {
             intake_pow = 0;
         }
 
-        if (gamepad1.y &&_drive == 1) {
+        if (gamepad2.y &&_drive == 1) {
             intake_pow = 0.5;
         }
 
         // Use the gamepad bumpers to turn the launcher on and off
-        if (gamepad1.right_bumper) {
+        if (gamepad2.right_bumper) {
             launcher_pow = 0.5;
         } else {
             launcher_pow = 0;

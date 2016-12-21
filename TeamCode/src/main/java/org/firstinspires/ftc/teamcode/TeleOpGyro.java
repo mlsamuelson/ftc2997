@@ -1,18 +1,20 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.GyroSensor;
 
 /**
- * Created by Steven on 9/28/2016.
- * Last edited on 12/13/2016
+ * Created by Steven on 12/14/2016.
+ * Last edited on 12/14/2016
  */
 
-@TeleOp(name="Test: Drive3", group="S Tests")
+@TeleOp(name="Test: Drive3", group="USE")
 
-public class TEST_third_vortex_bot extends OpMode {
+public class TeleOpGyro extends OpMode {
     // Declare variables
     DcMotor left_front;
     DcMotor right_front;
@@ -24,6 +26,13 @@ public class TEST_third_vortex_bot extends OpMode {
     double intake_pow;
     double launcher_pow;
     int _drive;
+
+    ModernRoboticsI2cGyro gyro;   // Hardware Device Object
+    int xVal, yVal, zVal = 0;     // Gyro rate Values
+    int heading = 0;              // Gyro integrated heading
+    int angleZ = 0;
+    boolean lastResetState = false;
+    boolean curResetState  = false;
 
     @Override
     public void init() {
@@ -43,6 +52,9 @@ public class TEST_third_vortex_bot extends OpMode {
         intake_pow = 0;
         launcher_pow = 0;
         _drive = 0;
+
+        // Initiate Gyro
+        gyro.calibrate();
     }
 
     @Override
@@ -58,9 +70,9 @@ public class TEST_third_vortex_bot extends OpMode {
         float br_pow = drive - strafe - rotate;
 
         // Use gamepad buttons to turn the intake on (X),off (B), and reverse (Y)
-        if (gamepad1.x) {
+        if (gamepad2.x) {
             _drive = 1;
-        } else if (gamepad1.b) {
+        } else if (gamepad2.b) {
             _drive = 0;
         }
 
@@ -70,12 +82,12 @@ public class TEST_third_vortex_bot extends OpMode {
             intake_pow = 0;
         }
 
-        if (gamepad1.y &&_drive == 1) {
+        if (gamepad2.y && _drive == 1) {
             intake_pow = 0.5;
         }
 
         // Use the gamepad bumpers to turn the launcher on and off
-        if (gamepad1.right_bumper) {
+        if (gamepad2.right_bumper) {
             launcher_pow = 0.5;
         } else {
             launcher_pow = 0;
@@ -98,6 +110,23 @@ public class TEST_third_vortex_bot extends OpMode {
 
         intake.setPower(intake_pow);
         launcher.setPower(launcher_pow);
+
+        // get the x, y, and z values (rate of change of angle).
+        xVal = gyro.rawX();
+        yVal = gyro.rawY();
+        zVal = gyro.rawZ();
+
+        // get the heading info.
+        heading = gyro.getHeading();
+        angleZ  = gyro.getIntegratedZValue();
+
+        telemetry.addData(">", "Press A & B to reset Heading.");
+        telemetry.addData("0", "Heading %03d", heading);
+        telemetry.addData("1", "Int. Ang. %03d", angleZ);
+        telemetry.addData("2", "X av. %03d", xVal);
+        telemetry.addData("3", "Y av. %03d", yVal);
+        telemetry.addData("4", "Z av. %03d", zVal);
+        telemetry.update();
     }
 
     double scaleInput(double dVal)  {
