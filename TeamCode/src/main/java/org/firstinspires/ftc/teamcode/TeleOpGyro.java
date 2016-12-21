@@ -70,20 +70,18 @@ public class TeleOpGyro extends OpMode {
         float br_pow = drive - strafe - rotate;
 
         // Use gamepad buttons to turn the intake on (X),off (B), and reverse (Y)
-        if (gamepad2.x) {
-            _drive = 1;
-        } else if (gamepad2.b) {
-            _drive = 0;
-        }
-
-        if (_drive == 1) {
-            intake_pow = -0.5;
-        } else if (_drive == 0) {
-            intake_pow = 0;
-        }
-
         if (gamepad2.y && _drive == 1) {
             intake_pow = 0.5;
+        } else {
+            intake_pow = -0.5;
+        }
+
+        if (gamepad2.x) {
+            _drive = 1;
+            intake_pow = -0.5;
+        } else if (gamepad2.b) {
+            _drive = 0;
+            intake_pow = 0;
         }
 
         // Use the gamepad bumpers to turn the launcher on and off
