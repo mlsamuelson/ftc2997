@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -11,7 +12,8 @@ import com.qualcomm.robotcore.util.Range;
  */
 
 @TeleOp(name="Test: Drive2", group="S Tests")
- 
+ @Disabled
+
 public class TEST_second_vortex_bot extends OpMode {
     DcMotor left_front;
     DcMotor right_front;

@@ -52,6 +52,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  */
 
 @TeleOp(name="Test for Errors", group="Tests")  // @Autonomous(...) is the other common choice
+@Disabled
 
 public class Test_for_errors extends OpMode
 {

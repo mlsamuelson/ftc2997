@@ -43,7 +43,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
  * Last edited on: 12/13/2016
  */
 
-@TeleOp(name="TeleOp 1", group="USE")
+@TeleOp(name="TeleOp Final", group="USE")
 
 public class TeleOpFinal extends OpMode {
     // Declare variables
