@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.hardware.GyroSensor;
  * Last edited on 12/14/2016
  */
 
-@TeleOp(name="Test: Drive3", group="USE")
+@TeleOp(name="Test: GyroDrive3", group="USE")
 
 public class TeleOpGyro extends OpMode {
     // Declare variables
@@ -55,20 +55,18 @@ public class TeleOpGyro extends OpMode {
 
         // Initiate Gyro
         gyro.calibrate();
+
+        while (gyro.isCalibrating()){
+            telemetry.addData(">", "Calibrating Gyro...");
+            telemetry.update();
+        }
+
+        telemetry.addData(">", "Gyro Calibrated");
+        telemetry.update();
     }
 
     @Override
     public void loop() {
-        // Using the information on the PDF, match the motors to fit with the sticks
-        float drive = gamepad1.left_stick_y;
-        float strafe = gamepad1.left_stick_x;
-        float rotate = gamepad1.right_stick_x;
-
-        float fl_pow = drive - strafe + rotate;
-        float bl_pow = drive + strafe + rotate;
-        float fr_pow = drive + strafe - rotate;
-        float br_pow = drive - strafe - rotate;
-
         // Use gamepad buttons to turn the intake on (X),off (B), and reverse (Y)
         if (gamepad2.y && _drive == 1) {
             intake_pow = 0.5;
@@ -91,6 +89,24 @@ public class TeleOpGyro extends OpMode {
             launcher_pow = 0;
         }
 
+        // Using the information on the PDF, match the motors to fit with the sticks
+        float drive = gamepad1.left_stick_y;
+        float rotate = gamepad1.right_stick_x;
+
+        // get the x, y, and z values (rate of change of angle).
+        xVal = gyro.rawX();
+        yVal = gyro.rawY();
+        zVal = gyro.rawZ();
+
+        // get the heading info.
+        heading = gyro.getHeading();
+        angleZ  = gyro.getIntegratedZValue();
+
+        float fl_pow = drive + rotate;
+        float bl_pow = drive + rotate;
+        float fr_pow = drive - rotate;
+        float br_pow = drive - rotate;
+
         // Scale the inputs to fit the motors
         fl_pow = (float) scaleInput(fl_pow);
         bl_pow = (float) scaleInput(bl_pow);
@@ -108,15 +124,6 @@ public class TeleOpGyro extends OpMode {
 
         intake.setPower(intake_pow);
         launcher.setPower(launcher_pow);
-
-        // get the x, y, and z values (rate of change of angle).
-        xVal = gyro.rawX();
-        yVal = gyro.rawY();
-        zVal = gyro.rawZ();
-
-        // get the heading info.
-        heading = gyro.getHeading();
-        angleZ  = gyro.getIntegratedZValue();
 
         telemetry.addData(">", "Press A & B to reset Heading.");
         telemetry.addData("0", "Heading %03d", heading);

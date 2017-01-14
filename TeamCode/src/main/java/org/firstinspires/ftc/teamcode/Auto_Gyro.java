@@ -34,48 +34,69 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
-@Autonomous(name="Autonomous Gyro", group="Pushbot")
+@Autonomous(name="Autonomous Gyro", group="Test")
 
 public class Auto_Gyro extends LinearOpMode {
 
     /* Declare OpMode members. */
-    HardwarePushbot robot   = new HardwarePushbot();   // Use a Pushbot's hardware
+
     ModernRoboticsI2cGyro   gyro    = null;                    // Additional Gyro device
 
-    static final double     COUNTS_PER_MOTOR_REV    = 1440 ;    // eg: TETRIX Motor Encoder
-    static final double     DRIVE_GEAR_REDUCTION    = 2.0 ;     // This is < 1.0 if geared UP
-    static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
+    static final double     COUNTS_PER_MOTOR_REV    = 1120;    // eg: TETRIX Motor Encoder (1440)
+    static final double     DRIVE_GEAR_REDUCTION    = 1.0;     // This is < 1.0 if geared UP
+    static final double     WHEEL_DIAMETER_INCHES   = 4.0;     // For figuring circumference
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
                                                       (WHEEL_DIAMETER_INCHES * 3.1415);
 
     // These constants define the desired driving/control characteristics
     // The can/should be tweaked to suite the specific robot drive train.
-    static final double     DRIVE_SPEED             = 0.7;     // Nominal speed for better accuracy.
-    static final double     TURN_SPEED              = 0.5;     // Nominal half speed for better accuracy.
+    static final double     DRIVE_SPEED             = 0.4;     // Nominal speed for better accuracy.
+    static final double     TURN_SPEED              = 0.2;     // Nominal half speed for better accuracy.
 
     static final double     HEADING_THRESHOLD       = 1 ;      // As tight as we can make it with an integer gyro
     static final double     P_TURN_COEFF            = 0.1;     // Larger is more responsive, but also less stable
-    static final double     P_DRIVE_COEFF           = 0.15;     // Larger is more responsive, but also less stable
+    static final double     P_DRIVE_COEFF           = 0.15;    // Larger is more responsive, but also less stable
 
+    DcMotor left_front;
+    DcMotor right_front;
+    DcMotor left_back;
+    DcMotor right_back;
+
+    boolean vuforiaGoal = true;
 
     @Override
     public void runOpMode() {
 
         /*
          * Initialize the standard drive system variables.
-         * The init() method of the hardware class does most of the work here
          */
-        robot.init(hardwareMap);
+        right_front = hardwareMap.dcMotor.get("r_front");
+        left_front = hardwareMap.dcMotor.get("l_front");
+        right_back = hardwareMap.dcMotor.get("r_back");
+        left_back = hardwareMap.dcMotor.get("l_back");
+
+        right_front.setDirection(DcMotorSimple.Direction.REVERSE);
+        right_back.setDirection(DcMotorSimple.Direction.REVERSE);
+
         gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get("gyro");
 
         // Ensure the robot it stationary, then reset the encoders and calibrate the gyro.
-        robot.leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        right_front.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        left_front.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        right_back.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        left_back.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         // Send telemetry message to alert driver that we are calibrating;
         telemetry.addData(">", "Calibrating Gyro");    //
@@ -89,11 +110,27 @@ public class Auto_Gyro extends LinearOpMode {
             idle();
         }
 
-        telemetry.addData(">", "Robot Ready.");    //
+        telemetry.addData(">", "Robot Ready.");
         telemetry.update();
 
-        robot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        right_front.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        left_front.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        right_back.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        left_back.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        // Set up Vuforia
+        VuforiaLocalizer.Parameters params = new VuforiaLocalizer.Parameters(R.id.cameraMonitorViewId);
+        params.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        params.vuforiaLicenseKey = "AT99xn7/////AAAAGba3Op9lP005p/1muRdA/Lpgd4QiKqy2xzEQL8ZIPxNHzLiWcz1AEATHuJZxfH2diokQKqBuPLkgEVi7HvDJoX9szJym+MhmXjakDmxEODsoeS3V5V7d2DBN1aC1+ekS1C31/QopnqiSKgt8XB0voGrLQ+i9D+6ZVkfhZ2b5Jc6JC7U3r7d2PuVtoWRjv4tDFdQa3fjgdZnTthcOv16LOfoOBrTY3KhMczqewqfPCs+fqGxYU8hdkgNOtIreRyMW2WZH6ZZovg62bVBM2yHRuaalfzyYdRDs1FkExR8V5QSD4dDHPwv5ITnWTPIgrwtEVjEk1+kpBHXJpuTm0vlIzO7h1Y7bU4wLQRnGLH8u/wTv";
+        params.cameraMonitorFeedback = VuforiaLocalizer.Parameters.CameraMonitorFeedback.TEAPOT;
+
+        VuforiaLocalizer vuforia = ClassFactory.createVuforiaLocalizer(params);
+
+        VuforiaTrackables beacons = vuforia.loadTrackablesFromAsset("FTC_2016-17");
+        beacons.get(0).setName("Wheels");
+        beacons.get(1).setName("Tools");
+        beacons.get(2).setName("Lego");
+        beacons.get(3).setName("Gears");
 
         // Wait for the game to start (Display Gyro value), and reset gyro before we move..
         while (!isStarted()) {
@@ -103,18 +140,34 @@ public class Auto_Gyro extends LinearOpMode {
         }
         gyro.resetZAxisIntegrator();
 
-        // Step through each leg of the path,
+        // Activate beacons (vuforia)
+        beacons.activate();
+
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
         // Put a hold after each turn
-        gyroDrive(DRIVE_SPEED, 48.0, 0.0);    // Drive FWD 48 inches
-        gyroTurn( TURN_SPEED, -45.0);         // Turn  CCW to -45 Degrees
-        gyroHold( TURN_SPEED, -45.0, 0.5);    // Hold -45 Deg heading for a 1/2 second
-        gyroTurn( TURN_SPEED,  45.0);         // Turn  CW  to  45 Degrees
-        gyroHold( TURN_SPEED,  45.0, 0.5);    // Hold  45 Deg heading for a 1/2 second
-        gyroTurn( TURN_SPEED,   0.0);         // Turn  CW  to   0 Degrees
-        gyroHold( TURN_SPEED,   0.0, 1.0);    // Hold  0 Deg heading for a 1 second
-        gyroDrive(DRIVE_SPEED,-48.0, 0.0);    // Drive REV 48 inches
-        gyroHold( TURN_SPEED,   0.0, 0.5);    // Hold  0 Deg heading for a 1/2 second
+
+        // KNOCK OFF CAP BALL
+        gyroDrive(DRIVE_SPEED, -45.0, 0);      // Drive FWD 72 inches
+
+        // FIND BEACON (Vuforia) AND DRIVE (Distance sensor)
+        while (opModeIsActive() && vuforiaGoal) {
+            for (VuforiaTrackable beac : beacons) {
+                OpenGLMatrix pose = ((VuforiaTrackableDefaultListener) beac.getListener()).getPose();
+
+                if (pose != null) {
+                    VectorF translation = pose.getTranslation();
+
+                    telemetry.addData(beac.getName() + "-Translation", translation);
+
+                    double degreesToTurn = Math.toDegrees(Math.atan2(translation.get(1), translation.get(2)));   // the two translations are for vertical phone (y and x). 0 and 2 for horizontal
+
+                    telemetry.addData(beac.getName() + "-Degrees", degreesToTurn);
+                }
+            }
+            telemetry.update();
+        }
+        // PRESS BEACON BUTTON (Color sensor)
+        // MOVE TO OTHER BEACON (Vuforia?)
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
@@ -133,81 +186,116 @@ public class Auto_Gyro extends LinearOpMode {
     *                   0 = fwd. +ve is CCW from fwd. -ve is CW from forward.
     *                   If a relative angle is required, add/subtract from current heading.
     */
-    public void gyroDrive ( double speed,
-                            double distance,
-                            double angle) {
+    public void gyroDrive ( double speed, double distance, double angle) {
 
-        int     newLeftTarget;
-        int     newRightTarget;
+        int     newFrontRightTarget;
+        int     newFrontLeftTarget;
+        int     newBackRightTarget;
+        int     newBackLeftTarget;
+
         int     moveCounts;
         double  max;
         double  error;
         double  steer;
-        double  leftSpeed;
-        double  rightSpeed;
+
+        double  frontRightSpeed;
+        double  frontLeftSpeed;
+        double  backRightSpeed;
+        double  backLeftSpeed;
 
         // Ensure that the opmode is still active
         if (opModeIsActive()) {
 
             // Determine new target position, and pass to motor controller
             moveCounts = (int)(distance * COUNTS_PER_INCH);
-            newLeftTarget = robot.leftMotor.getCurrentPosition() + moveCounts;
-            newRightTarget = robot.rightMotor.getCurrentPosition() + moveCounts;
+            newFrontRightTarget = right_front.getCurrentPosition() + moveCounts;
+            newFrontLeftTarget = left_front.getCurrentPosition() + moveCounts;
+            newBackRightTarget = right_back.getCurrentPosition() + moveCounts;
+            newBackLeftTarget = left_back.getCurrentPosition() + moveCounts;
 
             // Set Target and Turn On RUN_TO_POSITION
-            robot.leftMotor.setTargetPosition(newLeftTarget);
-            robot.rightMotor.setTargetPosition(newRightTarget);
+            right_front.setTargetPosition(newFrontRightTarget);
+            left_front.setTargetPosition(newFrontLeftTarget);
+            right_back.setTargetPosition(newBackRightTarget);
+            left_back.setTargetPosition(newBackLeftTarget);
 
-            robot.leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            robot.rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            right_front.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            left_front.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            right_back.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            left_back.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             // start motion.
             speed = Range.clip(Math.abs(speed), 0.0, 1.0);
-            robot.leftMotor.setPower(speed);
-            robot.rightMotor.setPower(speed);
+            right_front.setPower(speed);
+            left_front.setPower(speed);
+            right_back.setPower(speed);
+            left_back.setPower(speed);
 
-            // keep looping while we are still active, and BOTH motors are running.
+            // keep looping while we are still active, and ALL FOUR motors are running.
             while (opModeIsActive() &&
-                   (robot.leftMotor.isBusy() && robot.rightMotor.isBusy())) {
+                    (right_front.isBusy() &&
+                    left_front.isBusy() &&
+                    right_back.isBusy() &&
+                    left_back.isBusy())
+            ) {
 
                 // adjust relative speed based on heading error.
                 error = getError(angle);
                 steer = getSteer(error, P_DRIVE_COEFF);
 
                 // if driving in reverse, the motor correction also needs to be reversed
-                if (distance < 0)
-                    steer *= -1.0;
+                if (distance < 0){steer *= -1.0;}
 
-                leftSpeed = speed - steer;
-                rightSpeed = speed + steer;
+                frontRightSpeed = speed + steer;
+                frontLeftSpeed = speed - steer;
+                backRightSpeed = speed + steer;
+                backLeftSpeed = speed - steer;
 
                 // Normalize speeds if any one exceeds +/- 1.0;
-                max = Math.max(Math.abs(leftSpeed), Math.abs(rightSpeed));
+                max = Math.max(Math.abs(frontRightSpeed), Math.abs(frontLeftSpeed));
                 if (max > 1.0)
                 {
-                    leftSpeed /= max;
-                    rightSpeed /= max;
+                    frontRightSpeed /= max;
+                    frontLeftSpeed /= max;
+                }
+                max = Math.max(Math.abs(backRightSpeed), Math.abs(backLeftSpeed));
+                if (max > 1.0)
+                {
+                    backRightSpeed /= max;
+                    backLeftSpeed /= max;
                 }
 
-                robot.leftMotor.setPower(leftSpeed);
-                robot.rightMotor.setPower(rightSpeed);
+                right_front.setPower(frontRightSpeed);
+                left_front.setPower(frontLeftSpeed);
+                right_back.setPower(backRightSpeed);
+                left_back.setPower(backLeftSpeed);
 
                 // Display drive status for the driver.
-                telemetry.addData("Err/St",  "%5.1f/%5.1f",  error, steer);
-                telemetry.addData("Target",  "%7d:%7d",      newLeftTarget,  newRightTarget);
-                telemetry.addData("Actual",  "%7d:%7d",      robot.leftMotor.getCurrentPosition(),
-                                                             robot.rightMotor.getCurrentPosition());
-                telemetry.addData("Speed",   "%5.2f:%5.2f",  leftSpeed, rightSpeed);
+                telemetry.addData("1. Err/St",  "%5.1f/%5.1f",   error, steer);
+                telemetry.addData("2. Front Target",  "%7d:%7d", newFrontLeftTarget,  newFrontRightTarget);
+                telemetry.addData("3. Back Target", "%7d:%7d",   newBackLeftTarget, newBackRightTarget);
+                telemetry.addData("4. Front Actual",  "%7d:%7d", left_front.getCurrentPosition(),
+                                                                 right_front.getCurrentPosition());
+                telemetry.addData("5. Back Actual",  "%7d:%7d",  left_back.getCurrentPosition(),
+                                                                 right_back.getCurrentPosition());
+                telemetry.addData("6. Front Speed","%5.2f:%5.2f",frontLeftSpeed,
+                                                                 frontRightSpeed);
+                telemetry.addData("7. Back Speed","%5.2f:5.2f",  backLeftSpeed,
+                                                                 backRightSpeed);
                 telemetry.update();
             }
 
             // Stop all motion;
-            robot.leftMotor.setPower(0);
-            robot.rightMotor.setPower(0);
+            left_front.setPower(0);
+            right_front.setPower(0);
+            left_back.setPower(0);
+            right_back.setPower(0);
 
             // Turn off RUN_TO_POSITION
-            robot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            left_front.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            right_front.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            left_back.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            right_back.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
     }
 
@@ -241,7 +329,7 @@ public class Auto_Gyro extends LinearOpMode {
      *                   If a relative angle is required, add/subtract from current heading.
      * @param holdTime   Length of time (in seconds) to hold the specified heading.
      */
-    public void gyroHold( double speed, double angle, double holdTime) {
+    public void gyroHold(   double speed, double angle, double holdTime) {
 
         ElapsedTime holdTimer = new ElapsedTime();
 
@@ -254,8 +342,10 @@ public class Auto_Gyro extends LinearOpMode {
         }
 
         // Stop all motion;
-        robot.leftMotor.setPower(0);
-        robot.rightMotor.setPower(0);
+        left_front.setPower(0);
+        right_front.setPower(0);
+        left_back.setPower(0);
+        right_front.setPower(0);
     }
 
     /**
@@ -268,36 +358,45 @@ public class Auto_Gyro extends LinearOpMode {
      * @param PCoeff    Proportional Gain coefficient
      * @return
      */
-    boolean onHeading(double speed, double angle, double PCoeff) {
+    boolean onHeading(      double speed, double angle, double PCoeff) {
         double   error ;
         double   steer ;
         boolean  onTarget = false ;
-        double leftSpeed;
-        double rightSpeed;
+        double frontLeftSpeed;
+        double frontRightSpeed;
+        double backLeftSeed;
+        double backRightSpeed;
 
         // determine turn power based on +/- error
         error = getError(angle);
 
         if (Math.abs(error) <= HEADING_THRESHOLD) {
             steer = 0.0;
-            leftSpeed  = 0.0;
-            rightSpeed = 0.0;
+            frontLeftSpeed  = 0.0;
+            frontRightSpeed = 0.0;
+            backLeftSeed  = 0.0;
+            backRightSpeed = 0.0;
             onTarget = true;
         }
         else {
             steer = getSteer(error, PCoeff);
-            rightSpeed  = speed * steer;
-            leftSpeed   = -rightSpeed;
+            frontRightSpeed = speed * steer;
+            frontLeftSpeed = -frontRightSpeed;
+            backRightSpeed = frontRightSpeed;
+            backLeftSeed = frontLeftSpeed;
         }
 
         // Send desired speeds to motors.
-        robot.leftMotor.setPower(leftSpeed);
-        robot.rightMotor.setPower(rightSpeed);
+        left_front.setPower(frontLeftSpeed);
+        right_front.setPower(frontRightSpeed);
+        left_back.setPower(backLeftSeed);
+        right_back.setPower(backRightSpeed);
 
         // Display it for the driver.
-        telemetry.addData("Target", "%5.2f", angle);
-        telemetry.addData("Err/St", "%5.2f/%5.2f", error, steer);
-        telemetry.addData("Speed.", "%5.2f:%5.2f", leftSpeed, rightSpeed);
+        telemetry.addData("1. Target", "%5.2f", angle);
+        telemetry.addData("2. Err/St", "%5.2f/%5.2f", error, steer);
+        telemetry.addData("3. Front Speed", "%5.2f:%5.2f", frontLeftSpeed, frontRightSpeed);
+        telemetry.addData("4. Back Speed", "%5.2f:%5.2f", backLeftSeed, backRightSpeed);
 
         return onTarget;
     }
@@ -308,7 +407,7 @@ public class Auto_Gyro extends LinearOpMode {
      * @return  error angle: Degrees in the range +/- 180. Centered on the robot's frame of reference
      *          +ve error means the robot should turn LEFT (CCW) to reduce error.
      */
-    public double getError(double targetAngle) {
+    public double getError( double targetAngle) {
 
         double robotError;
 
@@ -325,8 +424,12 @@ public class Auto_Gyro extends LinearOpMode {
      * @param PCoeff  Proportional Gain Coefficient
      * @return
      */
-    public double getSteer(double error, double PCoeff) {
+    public double getSteer( double error, double PCoeff) {
         return Range.clip(error * PCoeff, -1, 1);
+    }
+
+    public void pressButton(int teamColor) {
+
     }
 
 }

@@ -43,7 +43,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
  * Last edited on: 12/13/2016
  */
 
-@TeleOp(name="Use this TeleOp", group="USE")
+@TeleOp(name="TeleOp 1", group="USE")
 
 public class TeleOpFinal extends OpMode {
     // Declare variables
@@ -68,9 +68,9 @@ public class TeleOpFinal extends OpMode {
         intake = hardwareMap.dcMotor.get("collect");
         launcher = hardwareMap.dcMotor.get("launch");
 
-        // Reverse right side
-        right_front.setDirection(DcMotorSimple.Direction.REVERSE);
-        right_back.setDirection(DcMotorSimple.Direction.REVERSE);
+        // Reverse left side
+        left_front.setDirection(DcMotorSimple.Direction.REVERSE);
+        left_back.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Initiate powers & drive
         intake_pow = 0;
