@@ -74,7 +74,7 @@ public class Auto_Gyro extends LinearOpMode {
     DcMotor left_back;
     DcMotor right_back;
 
-    boolean vuforiaGoal = true;
+    boolean vuforiaGoal = false;
 
     @Override
     public void runOpMode() {
@@ -132,6 +132,11 @@ public class Auto_Gyro extends LinearOpMode {
         beacons.get(2).setName("Lego");
         beacons.get(3).setName("Gears");
 
+        VuforiaTrackableDefaultListener wheels = (VuforiaTrackableDefaultListener) beacons.get(0).getListener();
+        VuforiaTrackableDefaultListener tools = (VuforiaTrackableDefaultListener) beacons.get(1).getListener();
+        VuforiaTrackableDefaultListener lego = (VuforiaTrackableDefaultListener) beacons.get(2).getListener();
+        VuforiaTrackableDefaultListener gears = (VuforiaTrackableDefaultListener) beacons.get(3).getListener();
+
         // Wait for the game to start (Display Gyro value), and reset gyro before we move..
         while (!isStarted()) {
             telemetry.addData(">", "Robot Heading = %d", gyro.getIntegratedZValue());
@@ -149,30 +154,38 @@ public class Auto_Gyro extends LinearOpMode {
         // KNOCK OFF CAP BALL
         gyroDrive(DRIVE_SPEED, -45.0, 0);      // Drive FWD 72 inches
 
-        // FIND BEACON (Vuforia) AND DRIVE (Distance sensor)
-        while (opModeIsActive() && vuforiaGoal) {
-            for (VuforiaTrackable beac : beacons) {
-                OpenGLMatrix pose = ((VuforiaTrackableDefaultListener) beac.getListener()).getPose();
+        // FIND BEACON (Vuforia)
+        while (opModeIsActive() && !vuforiaGoal) {
+            VectorF angles = anglesFromTarget(wheels);
+            VectorF trans = navOffWall(wheels.getPose().getTranslation(), Math.toDegrees(angles.get(0))-90, new VectorF(0, 0, 0));
 
-                if (pose != null) {
-                    VectorF translation = pose.getTranslation();
-
-                    telemetry.addData(beac.getName() + "-Translation", translation);
-
-                    double degreesToTurn = Math.toDegrees(Math.atan2(translation.get(1), translation.get(2)));   // the two translations are for vertical phone (y and x). 0 and 2 for horizontal
-
-                    telemetry.addData(beac.getName() + "-Degrees", degreesToTurn);
-                }
+            if (trans.get(0) > 0){
+                left_front.setPower(0.01);
+                left_back.setPower(0.01);
+                right_front.setPower(-0.01);
+                right_back.setPower(-0.01);
+            } else if (trans.get(0) < 0){
+                left_front.setPower(-0.01);
+                left_back.setPower(-0.01);
+                right_front.setPower(0.01);
+                right_back.setPower(0.01);
+            } else {
+                vuforiaGoal = true;
             }
-            telemetry.update();
         }
+
+        left_front.setPower(0);
+        left_back.setPower(0);
+        right_front.setPower(0);
+        right_back.setPower(0);
+
+        // DRIVE TO BEACON (Distance sensor)
         // PRESS BEACON BUTTON (Color sensor)
         // MOVE TO OTHER BEACON (Vuforia?)
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
     }
-
 
    /**
     *  Method to drive on a fixed compass bearing (angle), based on encoder counts.
@@ -428,8 +441,25 @@ public class Auto_Gyro extends LinearOpMode {
         return Range.clip(error * PCoeff, -1, 1);
     }
 
-    public void pressButton(int teamColor) {
+    public VectorF navOffWall(VectorF trans, double robotAngle, VectorF offWall){
+        return new VectorF(
+                (float) (trans.get(0) - offWall.get(0) * Math.sin(Math.toRadians(robotAngle)) - offWall.get(2) * Math.cos(Math.toRadians(robotAngle))),
+                trans.get(1),
+                (float) (trans.get(2) + offWall.get(0) * Math.cos(Math.toRadians(robotAngle)) - offWall.get(2) * Math.sin(Math.toRadians(robotAngle)))
+        );
+    }
 
+    public VectorF anglesFromTarget(VuforiaTrackableDefaultListener image){
+        float [] data = image.getRawPose().getData();
+        float [] [] rotation = {
+                {data[0], data[1]},
+                {data[4], data[5], data[6]},
+                {data[8], data[9], data[10]}
+        };
+        double thetaX = Math.atan2(rotation[2][1], rotation[2][2]);
+        double thetaY = Math.atan2(-rotation[2][0], Math.sqrt(rotation[2][1] * rotation[2][1] + rotation[2][2] * rotation[2][2]));
+        double thetaZ = Math.atan2(rotation[1][0], rotation[0][0]);
+        return new VectorF((float)thetaX, (float)thetaY, (float)thetaZ);
     }
 
 }
