@@ -155,7 +155,8 @@ public class Auto_Gyro extends LinearOpMode {
         gyroDrive(DRIVE_SPEED, -45.0, 0);      // Drive FWD 72 inches
 
         // FIND BEACON (Vuforia)
-        while (opModeIsActive() && !vuforiaGoal) {
+        /*while (opModeIsActive() && !vuforiaGoal) {
+            // Currently, bot is not finding image. Move forewards until image is found, then aim.
             VectorF angles = anglesFromTarget(wheels);
             VectorF trans = navOffWall(wheels.getPose().getTranslation(), Math.toDegrees(angles.get(0))-90, new VectorF(0, 0, 0));
 
@@ -172,7 +173,7 @@ public class Auto_Gyro extends LinearOpMode {
             } else {
                 vuforiaGoal = true;
             }
-        }
+        }*/
 
         left_front.setPower(0);
         left_back.setPower(0);
@@ -369,7 +370,6 @@ public class Auto_Gyro extends LinearOpMode {
      *                  0 = fwd. +ve is CCW from fwd. -ve is CW from forward.
      *                  If a relative angle is required, add/subtract from current heading.
      * @param PCoeff    Proportional Gain coefficient
-     * @return
      */
     boolean onHeading(      double speed, double angle, double PCoeff) {
         double   error ;
@@ -435,7 +435,6 @@ public class Auto_Gyro extends LinearOpMode {
      * returns desired steering force.  +/- 1 range.  +ve = steer left
      * @param error   Error angle in robot relative degrees
      * @param PCoeff  Proportional Gain Coefficient
-     * @return
      */
     public double getSteer( double error, double PCoeff) {
         return Range.clip(error * PCoeff, -1, 1);
@@ -449,7 +448,7 @@ public class Auto_Gyro extends LinearOpMode {
         );
     }
 
-    public VectorF anglesFromTarget(VuforiaTrackableDefaultListener image){
+    /*public VectorF anglesFromTarget(VuforiaTrackableDefaultListener image){
         float [] data = image.getRawPose().getData();
         float [] [] rotation = {
                 {data[0], data[1]},
@@ -460,6 +459,6 @@ public class Auto_Gyro extends LinearOpMode {
         double thetaY = Math.atan2(-rotation[2][0], Math.sqrt(rotation[2][1] * rotation[2][1] + rotation[2][2] * rotation[2][2]));
         double thetaZ = Math.atan2(rotation[1][0], rotation[0][0]);
         return new VectorF((float)thetaX, (float)thetaY, (float)thetaZ);
-    }
+    }*/
 
 }
