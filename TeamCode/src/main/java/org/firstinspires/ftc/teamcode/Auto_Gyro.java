@@ -39,12 +39,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 
 @Autonomous(name="Autonomous Gyro", group="Test")
 
@@ -53,6 +53,7 @@ public class Auto_Gyro extends LinearOpMode {
     /* Declare OpMode members. */
 
     ModernRoboticsI2cGyro   gyro    = null;                    // Additional Gyro device
+    ModernRoboticsI2cRangeSensor rangeSensor;                  // Range Sensor
 
     static final double     COUNTS_PER_MOTOR_REV    = 1120;    // eg: TETRIX Motor Encoder (1440)
     static final double     DRIVE_GEAR_REDUCTION    = 1.0;     // This is < 1.0 if geared UP
@@ -74,7 +75,8 @@ public class Auto_Gyro extends LinearOpMode {
     DcMotor left_back;
     DcMotor right_back;
 
-    boolean vuforiaGoal = false;
+    double frontPower;
+    double backPower;
 
     @Override
     public void runOpMode() {
@@ -132,12 +134,14 @@ public class Auto_Gyro extends LinearOpMode {
         beacons.get(2).setName("Lego");
         beacons.get(3).setName("Gears");
 
+        // Only these two are here because they are the only ones needed for this program
         VuforiaTrackableDefaultListener wheels = (VuforiaTrackableDefaultListener) beacons.get(0).getListener();
-        VuforiaTrackableDefaultListener tools = (VuforiaTrackableDefaultListener) beacons.get(1).getListener();
         VuforiaTrackableDefaultListener lego = (VuforiaTrackableDefaultListener) beacons.get(2).getListener();
-        VuforiaTrackableDefaultListener gears = (VuforiaTrackableDefaultListener) beacons.get(3).getListener();
 
-        // Wait for the game to start (Display Gyro value), and reset gyro before we move..
+        // Initialise the range sensor
+        rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range");
+
+        // Wait for the game to start (Display Gyro value), and reset gyro before we move...
         while (!isStarted()) {
             telemetry.addData(">", "Robot Heading = %d", gyro.getIntegratedZValue());
             telemetry.update();
@@ -155,32 +159,39 @@ public class Auto_Gyro extends LinearOpMode {
         gyroDrive(DRIVE_SPEED, -45.0, 0);      // Drive FWD 72 inches
 
         // FIND BEACON (Vuforia)
-        /*while (opModeIsActive() && !vuforiaGoal) {
-            // Currently, bot is not finding image. Move forewards until image is found, then aim.
-            VectorF angles = anglesFromTarget(wheels);
-            VectorF trans = navOffWall(wheels.getPose().getTranslation(), Math.toDegrees(angles.get(0))-90, new VectorF(0, 0, 0));
+        int runs = 0;
+        //int previousHeading = ();
+        //int currentHeading = ;
+        VectorF angles = anglesFromTarget(wheels);
+        VectorF trans = navOffWall(wheels.getPose().getTranslation(), Math.toDegrees(angles.get(0))-90, new VectorF(0, 0, 0));
+        while (opModeIsActive() && rangeSensor.getDistance(DistanceUnit.CM) > 6.00) {
+            if (wheels.getPose() != null){  // If 'wheels' is found, continue with program
+                if (runs >= 300) {
+                    left_front.setPower(-0.5);
+                    left_back.setPower(  0.5);
+                    right_front.setPower(0.5);
+                    right_back.setPower(-0.5);
+                } else {
+                    runs ++;
 
-            if (trans.get(0) > 0){
-                left_front.setPower(0.01);
-                left_back.setPower(0.01);
-                right_front.setPower(-0.01);
-                right_back.setPower(-0.01);
-            } else if (trans.get(0) < 0){
-                left_front.setPower(-0.01);
-                left_back.setPower(-0.01);
-                right_front.setPower(0.01);
-                right_back.setPower(0.01);
-            } else {
-                vuforiaGoal = true;
+                }
+            } else { // Otherwise, strafe
+                left_front.setPower(-0.2);
+                left_back.setPower(  0.2);
+                right_front.setPower(0.2);
+                right_back.setPower(-0.2);
+
+                telemetry.addData("0. ", "STRAFE");
+
+                telemetry.update();
             }
-        }*/
+        }
 
         left_front.setPower(0);
         left_back.setPower(0);
         right_front.setPower(0);
         right_back.setPower(0);
 
-        // DRIVE TO BEACON (Distance sensor)
         // PRESS BEACON BUTTON (Color sensor)
         // MOVE TO OTHER BEACON (Vuforia?)
 
@@ -448,7 +459,7 @@ public class Auto_Gyro extends LinearOpMode {
         );
     }
 
-    /*public VectorF anglesFromTarget(VuforiaTrackableDefaultListener image){
+    public VectorF anglesFromTarget(VuforiaTrackableDefaultListener image){
         float [] data = image.getRawPose().getData();
         float [] [] rotation = {
                 {data[0], data[1]},
@@ -459,6 +470,6 @@ public class Auto_Gyro extends LinearOpMode {
         double thetaY = Math.atan2(-rotation[2][0], Math.sqrt(rotation[2][1] * rotation[2][1] + rotation[2][2] * rotation[2][2]));
         double thetaZ = Math.atan2(rotation[1][0], rotation[0][0]);
         return new VectorF((float)thetaX, (float)thetaY, (float)thetaZ);
-    }*/
+    }
 
 }
