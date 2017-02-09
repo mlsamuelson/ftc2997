@@ -85,31 +85,33 @@ public class TeleOpFinal extends OpMode {
         float driveRIGHT = gamepad1.right_stick_y;
         float strafeRIGHT = gamepad1.right_stick_x;
 
-        float fl_pow = driveLEFT - strafeLEFT;
-        float bl_pow = driveLEFT + strafeLEFT;
-        float fr_pow = driveRIGHT + strafeRIGHT;
-        float br_pow = driveRIGHT - strafeRIGHT;
+        float fl_pow = driveLEFT + strafeLEFT;
+        float bl_pow = driveLEFT - strafeLEFT;
+        float fr_pow = driveRIGHT - strafeRIGHT;
+        float br_pow = driveRIGHT + strafeRIGHT;
 
         // Use gamepad buttons to turn the intake on (X),off (B), and reverse (Y)
-        if (gamepad2.x) {
+        if (gamepad1.right_bumper) {
             _drive = 1;
-        } else if (gamepad2.b) {
+        } else if (gamepad1.left_bumper) {
             _drive = 0;
         }
 
         if (_drive == 1) {
-            intake_pow = -0.5;
+            intake_pow = -1;
         } else if (_drive == 0) {
             intake_pow = 0;
         }
 
-        if (gamepad2.y &&_drive == 1) {
-            intake_pow = 0.5;
+        if (gamepad1.left_trigger > 0.2 && _drive == 1) {
+            intake_pow = 1;
         }
 
         // Use the gamepad bumpers to turn the launcher on and off
-        if (gamepad2.right_bumper) {
-            launcher_pow = 0.5;
+        if (gamepad2.right_trigger > 0.2) {
+            launcher_pow = 1;
+        } else if (gamepad2.left_trigger > 0.2) {
+            launcher_pow = gamepad2.left_trigger;
         } else {
             launcher_pow = 0;
         }
@@ -131,6 +133,12 @@ public class TeleOpFinal extends OpMode {
 
         intake.setPower(intake_pow);
         launcher.setPower(launcher_pow);
+
+        telemetry.addData("1. Front Left", fl_pow);
+        telemetry.addData("2. Front Right", fl_pow);
+        telemetry.addData("3. Back Left", fl_pow);
+        telemetry.addData("4. Back Right", fl_pow);
+        telemetry.update();
     }
 
     double scaleInput(double dVal)  {

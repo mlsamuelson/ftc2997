@@ -28,6 +28,7 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
@@ -46,7 +47,18 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefau
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 @Autonomous(name="Autonomous Gyro", group="Test")
+
+/*
+	-()----()+
+	 ||||||||
+<--	 ||||||||	<--
+	 ||||||||
+	+()----()-
+*/
 
 public class Auto_Gyro extends LinearOpMode {
 
@@ -107,7 +119,7 @@ public class Auto_Gyro extends LinearOpMode {
         gyro.calibrate();
 
         // make sure the gyro is calibrated before continuing
-        while (!isStopRequested() && gyro.isCalibrating())  {
+        while (!isStopRequested() && gyro.isCalibrating() && opModeIsActive())  {
             sleep(50);
             idle();
         }
@@ -122,7 +134,7 @@ public class Auto_Gyro extends LinearOpMode {
 
         // Set up Vuforia
         VuforiaLocalizer.Parameters params = new VuforiaLocalizer.Parameters(R.id.cameraMonitorViewId);
-        params.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        params.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
         params.vuforiaLicenseKey = "AT99xn7/////AAAAGba3Op9lP005p/1muRdA/Lpgd4QiKqy2xzEQL8ZIPxNHzLiWcz1AEATHuJZxfH2diokQKqBuPLkgEVi7HvDJoX9szJym+MhmXjakDmxEODsoeS3V5V7d2DBN1aC1+ekS1C31/QopnqiSKgt8XB0voGrLQ+i9D+6ZVkfhZ2b5Jc6JC7U3r7d2PuVtoWRjv4tDFdQa3fjgdZnTthcOv16LOfoOBrTY3KhMczqewqfPCs+fqGxYU8hdkgNOtIreRyMW2WZH6ZZovg62bVBM2yHRuaalfzyYdRDs1FkExR8V5QSD4dDHPwv5ITnWTPIgrwtEVjEk1+kpBHXJpuTm0vlIzO7h1Y7bU4wLQRnGLH8u/wTv";
         params.cameraMonitorFeedback = VuforiaLocalizer.Parameters.CameraMonitorFeedback.TEAPOT;
 
@@ -156,36 +168,90 @@ public class Auto_Gyro extends LinearOpMode {
         // Put a hold after each turn
 
         // KNOCK OFF CAP BALL
-        gyroDrive(DRIVE_SPEED, -45.0, 0);      // Drive FWD 72 inches
+        gyroDrive(DRIVE_SPEED, 45.0, 0);
 
-        // FIND BEACON (Vuforia)
-        int runs = 0;
-        //int previousHeading = ();
-        //int currentHeading = ;
-        VectorF angles = anglesFromTarget(wheels);
-        VectorF trans = navOffWall(wheels.getPose().getTranslation(), Math.toDegrees(angles.get(0))-90, new VectorF(0, 0, 0));
-        while (opModeIsActive() && rangeSensor.getDistance(DistanceUnit.CM) > 6.00) {
-            if (wheels.getPose() != null){  // If 'wheels' is found, continue with program
-                if (runs >= 300) {
-                    left_front.setPower(-0.5);
-                    left_back.setPower(  0.5);
-                    right_front.setPower(0.5);
-                    right_back.setPower(-0.5);
-                } else {
-                    runs ++;
+        // RE-ALIGN
+        reAlign();
 
+        // TURN 90 DEGREES
+        gyroTurn(TURN_SPEED, 90);
+        gyroHold(TURN_SPEED, 90, 1);
+
+        // While the opmode is running and the bot has not reached the wall...
+        double frontRightSpeed;
+        double frontLeftSpeed;
+        double backRightSpeed;
+        double backLeftSpeed;
+
+        double error;
+        double steer;
+        while (opModeIsActive() && rangeSensor.getDistance(DistanceUnit.CM) > 12.00){
+            if (wheels.getPose() != null){
+                error = getError(0);      // get the error (how far off of the heading)
+                steer = getSteer(error, P_DRIVE_COEFF);  // ger the steer (how far to turn to correct heading)
+
+                // Set the speeds
+                frontLeftSpeed  = -DRIVE_SPEED + steer;
+                backLeftSpeed   =  DRIVE_SPEED - steer;
+                frontRightSpeed =  DRIVE_SPEED + steer;
+                backRightSpeed  = -DRIVE_SPEED - steer;
+
+                // Normalize speeds if any one exceeds +/- 1.0;
+                double max1 = Math.max(Math.abs(frontRightSpeed), Math.abs(frontLeftSpeed));
+                double max2 = Math.max(Math.abs(backRightSpeed), Math.abs(backLeftSpeed));
+                double max = Math.max(max1, max2);
+                if (max > 1.0){
+                    frontRightSpeed /= max;
+                    frontLeftSpeed /= max;
+                    backRightSpeed /= max;
+                    backLeftSpeed /= max;
                 }
-            } else { // Otherwise, strafe
-                left_front.setPower(-0.2);
-                left_back.setPower(  0.2);
-                right_front.setPower(0.2);
-                right_back.setPower(-0.2);
 
-                telemetry.addData("0. ", "STRAFE");
+                left_front.setPower( frontLeftSpeed);
+                left_back.setPower(  backLeftSpeed);
+                right_front.setPower(frontRightSpeed);
+                right_back.setPower( backRightSpeed);
 
+                telemetry.addData("0. Mode", "STRAFE");
+                telemetry.addData("1. Heading", gyro.getHeading());
+                telemetry.addData("2. Error", error);
+                telemetry.addData("3. Front Left", frontLeftSpeed);
+                telemetry.addData("4. Front Right", frontRightSpeed);
+                telemetry.addData("5. Back Left", backLeftSpeed);
+                telemetry.addData("6. Back Right", backRightSpeed);
                 telemetry.update();
             }
         }
+
+        // FIND BEACON (Vuforia)
+
+        //int runs = 0;
+        //int previousHeading = ();
+        //int currentHeading = ;
+        //VectorF angles = anglesFromTarget(wheels);
+        //VectorF trans = navOffWall(wheels.getPose().getTranslation(), Math.toDegrees(angles.get(0))-90, new VectorF(0, 0, 0));
+        //while (opModeIsActive() && rangeSensor.getDistance(DistanceUnit.CM) > 6.00) {
+        //    if (wheels.getPose() != null){  // If 'wheels' is found, continue with program
+        //        if (runs >= 300) {
+        //            left_front.setPower(-0.5);
+        //            left_back.setPower(  0.5);
+        //            right_front.setPower(0.5);
+        //            right_back.setPower(-0.5);
+        //        } else {
+        //            runs ++;
+        //
+        //        }
+        //    } else { // Otherwise, strafe
+        //        left_front.setPower(-0.2);
+        //        left_back.setPower(  0.2);
+        //        right_front.setPower(0.2);
+        //        right_back.setPower(-0.2);
+        //
+        //        telemetry.addData("0. ", "STRAFE");
+        //
+        //        telemetry.update();
+        //    }
+        //}
 
         left_front.setPower(0);
         left_back.setPower(0);
@@ -296,6 +362,7 @@ public class Auto_Gyro extends LinearOpMode {
                 left_back.setPower(backLeftSpeed);
 
                 // Display drive status for the driver.
+                telemetry.addData("0. Drive mode", "NORMAL");
                 telemetry.addData("1. Err/St",  "%5.1f/%5.1f",   error, steer);
                 telemetry.addData("2. Front Target",  "%7d:%7d", newFrontLeftTarget,  newFrontRightTarget);
                 telemetry.addData("3. Back Target", "%7d:%7d",   newBackLeftTarget, newBackRightTarget);
@@ -307,6 +374,120 @@ public class Auto_Gyro extends LinearOpMode {
                                                                  frontRightSpeed);
                 telemetry.addData("7. Back Speed","%5.2f:5.2f",  backLeftSpeed,
                                                                  backRightSpeed);
+                telemetry.update();
+            }
+
+            // Stop all motion;
+            left_front.setPower(0);
+            right_front.setPower(0);
+            left_back.setPower(0);
+            right_back.setPower(0);
+
+            // Turn off RUN_TO_POSITION
+            left_front.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            right_front.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            left_back.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            right_back.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+    }
+
+    public void gyroStrafe ( double speed, double distance, double angle) {
+
+        int     newFrontRightTarget;
+        int     newFrontLeftTarget;
+        int     newBackRightTarget;
+        int     newBackLeftTarget;
+
+        int     moveCounts;
+        double  max;
+        double  error;
+        double  steer;
+
+        double  frontRightSpeed;
+        double  frontLeftSpeed;
+        double  backRightSpeed;
+        double  backLeftSpeed;
+
+        // Ensure that the opmode is still active
+        if (opModeIsActive()) {
+
+            // Determine new target position, and pass to motor controller
+            moveCounts = (int)(distance * COUNTS_PER_INCH);
+            newFrontRightTarget = right_front.getCurrentPosition() + moveCounts;
+            newFrontLeftTarget = left_front.getCurrentPosition() + moveCounts;
+            newBackRightTarget = right_back.getCurrentPosition() + moveCounts;
+            newBackLeftTarget = left_back.getCurrentPosition() + moveCounts;
+
+            // Set Target and Turn On RUN_TO_POSITION
+            right_front.setTargetPosition(newFrontRightTarget);
+            left_front.setTargetPosition(newFrontLeftTarget);
+            right_back.setTargetPosition(newBackRightTarget);
+            left_back.setTargetPosition(newBackLeftTarget);
+
+            right_front.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            left_front.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            right_back.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            left_back.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            // start motion.
+            speed = Range.clip(Math.abs(speed), 0.0, 1.0);
+            right_front.setPower(-speed);
+            left_front.setPower(speed);
+            right_back.setPower(speed);
+            left_back.setPower(-speed);
+
+            // keep looping while we are still active, and ALL FOUR motors are running.
+            while (opModeIsActive() &&
+                    (right_front.isBusy() &&
+                            left_front.isBusy() &&
+                            right_back.isBusy() &&
+                            left_back.isBusy())
+                    ) {
+
+                // adjust relative speed based on heading error.
+                error = getError(angle);
+                steer = getSteer(error, P_DRIVE_COEFF);
+
+                // if driving in reverse, the motor correction also needs to be reversed
+                if (distance < 0){steer *= -1.0;}
+
+                frontRightSpeed = speed + steer;
+                frontLeftSpeed = speed - steer;
+                backRightSpeed = speed + steer;
+                backLeftSpeed = speed - steer;
+
+                // Normalize speeds if any one exceeds +/- 1.0;
+                max = Math.max(Math.abs(frontRightSpeed), Math.abs(backLeftSpeed));
+                if (max > 1.0)
+                {
+                    frontRightSpeed /= max;
+                    backLeftSpeed /= max;
+                }
+                max = Math.max(Math.abs(backRightSpeed), Math.abs(frontLeftSpeed));
+                if (max > 1.0)
+                {
+                    backRightSpeed /= max;
+                    frontLeftSpeed /= max;
+                }
+
+                right_front.setPower(frontRightSpeed);
+                left_front.setPower(frontLeftSpeed);
+                right_back.setPower(backRightSpeed);
+                left_back.setPower(backLeftSpeed);
+
+                // Display drive status for the driver.
+                telemetry.addData("0. Drive mode", "STRAFE");
+                telemetry.addData("1. Err/St",  "%5.1f/%5.1f",   error, steer);
+                telemetry.addData("2. Front Target",  "%7d:%7d", newFrontLeftTarget,  newFrontRightTarget);
+                telemetry.addData("3. Front Actual",  "%7d:%7d", left_front.getCurrentPosition(),
+                        right_front.getCurrentPosition());
+                telemetry.addData("4. Back Target", "%7d:%7d",   newBackLeftTarget, newBackRightTarget);
+                telemetry.addData("5. Back Actual",  "%7d:%7d",  left_back.getCurrentPosition(),
+                        right_back.getCurrentPosition());
+                telemetry.addData("6. Front Speed","%5.2f:%5.2f",frontLeftSpeed,
+                        frontRightSpeed);
+                telemetry.addData("7. Back Speed","%5.2f:5.2f",  backLeftSpeed,
+                        backRightSpeed);
                 telemetry.update();
             }
 
@@ -432,11 +613,20 @@ public class Auto_Gyro extends LinearOpMode {
      *          +ve error means the robot should turn LEFT (CCW) to reduce error.
      */
     public double getError( double targetAngle) {
-
         double robotError;
 
         // calculate error in -179 to +180 range  (
         robotError = targetAngle - gyro.getIntegratedZValue();
+        while (robotError > 180)  robotError -= 360;
+        while (robotError <= -180) robotError += 360;
+        return robotError;
+    }
+
+    public double getErrorVuforia( double targetAngle, VuforiaTrackableDefaultListener image){
+        double robotError;
+
+        // calculate error in -179 to +180 range  (
+        robotError = targetAngle - anglesFromTarget(image).get(2);
         while (robotError > 180)  robotError -= 360;
         while (robotError <= -180) robotError += 360;
         return robotError;
@@ -472,4 +662,47 @@ public class Auto_Gyro extends LinearOpMode {
         return new VectorF((float)thetaX, (float)thetaY, (float)thetaZ);
     }
 
+    public static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
+    }
+
+    public void reAlign () {
+        double trueHeading = gyro.getHeading();
+        double heading = trueHeading - 180;
+        double l, r;
+
+        while (opModeIsActive() && -179 < heading && heading < 181){
+            if (heading > -179 && heading < 0){
+                l = -0.1;
+                r = 0.1;
+            } else if (heading < 181 && heading > 0){
+                l = 0.1;
+                r = -0.1;
+            } else {
+                left_front.setPower(0);
+                left_back.setPower(0);
+                right_front.setPower(0);
+                right_back.setPower(0);
+                break;
+            }
+
+            left_front.setPower(l);
+            left_back.setPower(l);
+            right_front.setPower(r);
+            right_back.setPower(r);
+
+            telemetry.addData("1. True Heading", trueHeading);
+            telemetry.addData("2. -180 Heading", heading);
+            telemetry.addData("3. Left Power", l);
+            telemetry.addData("4. Right Power", r);
+            telemetry.update();
+
+            trueHeading = gyro.getHeading();
+            heading = trueHeading-180;
+        }
+    }
 }
